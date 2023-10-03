@@ -45,6 +45,10 @@ export const updateCategory=asyncHandler(async (req,res,next)=>{
         await cloudinary.uploader.destroy(category.image.public_id);
         category.image={secure_url,public_id}
     }
+
+    if(req.body.description){
+        category.description=req.body.description;
+    }
     category.updatedBy=req.user._id;
     await category.save();
     return res.json({category})
