@@ -59,13 +59,14 @@ export const getAllCategory=asyncHandler(async (req,res,next)=>{
 })
 
 export const deleteCategory=asyncHandler(async (req,res,next)=>{
-    const category= await categoryModel.findById(req.params.categoryId);
+    const name=req.body.name;
+    const category= await categoryModel.findOne({name});
 
     if(!category){
         return next(new Error("category not found"));
     }
 
-    await categoryModel.findByIdAndDelete(req.params.categoryId)
+    await categoryModel.findByIdAndDelete(category._id)
     return res.status(200).json({message:"success"})
 
 })
