@@ -2,8 +2,9 @@ import joi from "joi";
 import { generalFeilds } from "../../MiddleWare/validation.js";
 
 export const createCategory=joi.object({
-    name:joi.string().min(2).max(24).required(),
+    name:joi.string().min(2).max(50).required(),
     file:generalFeilds.file.required(),
+    description:joi.string().min(2).max(100).required(),
 }).required();
 
 export const updateCategory=joi.object({

@@ -6,7 +6,7 @@ const categorySchema = new Schema ({
         required:true,
         unique:true,
     },
-    slug:{
+    description:{
         type:String,
         required:true,
     },
@@ -18,16 +18,9 @@ const categorySchema = new Schema ({
     updatedBy:{type:Types.ObjectId,ref:'User',required:true},
 },
 {
-    toJSON:{virtuals:true},
-    toObject:{virtuals:true},
     timestamps:true
 })
 
-categorySchema.virtual('subcategory',{
-    localField:'_id',
-    foreignField:'categoryId',
-    ref:'subCategory'
-})
 
 const categoryModel = mongoose.models.Category ||  model('Category', categorySchema);
 export default categoryModel;
