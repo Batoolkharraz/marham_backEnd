@@ -13,5 +13,6 @@ const router = Router();
 router.post('/',auth(endPoint.create),fileUpload(fileValidation.image).single('image'),validation(validators.createCategory),categoryCont.createCategory);
 router.patch('/update',auth(endPoint.update),fileUpload(fileValidation.image).single('image'),validation(validators.updateCategory),categoryCont.updateCategory)
 router.get('/',categoryCont.getAllCategory);
+router.get('/:categoryId',categoryCont.getCategory);
 router.delete('/',categoryCont.deleteCategory);
 export default router;
