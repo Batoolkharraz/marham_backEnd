@@ -106,3 +106,10 @@ export const deleteDoctor=asyncHandler(async (req,res,next)=>{
     return res.status(200).json({message:"success"})
 
 })
+
+export const getDoctorByCat=asyncHandler(async (req,res,next)=>{
+
+    const doctors= await doctorModel.find({categoryId:req.params.categoryId});
+    return res.status(200).json({doctors})
+
+})

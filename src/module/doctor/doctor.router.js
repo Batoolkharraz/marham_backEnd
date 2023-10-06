@@ -14,5 +14,6 @@ router.post('/',auth(endPoint.create),fileUpload(fileValidation.image).single('i
 router.patch('/update',auth(endPoint.update),fileUpload(fileValidation.image).single('image'),validation(validators.updateDoctor),doctorCont.updateDoctor)
 router.get('/',doctorCont.getAllDoctor);
 router.get('/:doctorId',doctorCont.getDoctor);
+router.get('/category/:categoryId',doctorCont.getDoctorByCat);
 router.delete('/',doctorCont.deleteDoctor);
 export default router;
