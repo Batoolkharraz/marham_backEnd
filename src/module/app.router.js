@@ -3,6 +3,7 @@ import userRouter from './user/user.router.js';
 import categoryRouter from './category/category.router.js';
 import doctorRouter from './doctor/doctor.router.js';
 import medicineRouter from './medicine/medicine.router.js';
+import prescriptionRouter from './prescription/prescription.router.js';
 import { globalErrorHandel } from '../Services/errorHandling.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,6 +25,7 @@ const initApp=(app,express)=>{
     app.use('/category',categoryRouter);
     app.use('/doctor',doctorRouter);
     app.use('/medicine',medicineRouter);
+    app.use('/prescription',prescriptionRouter);
     app.use('*',(req,res)=>{
         return res.json({message:"page not found"});
     })
