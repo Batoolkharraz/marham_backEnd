@@ -1,14 +1,15 @@
 
 import mongoose, { Schema, model, Types } from 'mongoose';
 const prescriptionSchema = new Schema({
+    diagnosis:{type:String,required:true},
     medicines: [{
         medicine: { type:String, required: true },
         description: { type: String, required: true },
-        time:{
+        time:[{
             type:String,
             default:'night',
             enum:['morning','noon','night'],
-        }
+        }]
     }],
     dateFrom: { type: String, required: true },
     dateTo: { type: String, required: true },

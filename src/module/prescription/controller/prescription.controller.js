@@ -27,6 +27,7 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
         dateFrom:req.body.dateFrom,
         dateTo:req.body.dateTo,
         medicines,
+        diagnosis:req.body.diagnosis,
     })
 
     return res.status(201).json({ prescription });
@@ -62,7 +63,7 @@ export const getPrescription = asyncHandler(async (req, res, next) => {
     if (!prescription) {
         return next(new Error(`this prescription not found `));
     }
-    return res.status(201).json({ prescription });
+    return res.status(200).json({ prescription });
 }) 
 
 export const getPrescriptionByUser = asyncHandler(async (req, res, next) => {
@@ -70,7 +71,7 @@ export const getPrescriptionByUser = asyncHandler(async (req, res, next) => {
     if (!prescriptions) {
         return next(new Error(`this prescription not found `));
     }
-    return res.status(201).json({ prescriptions });
+    return res.status(200).json({ prescriptions });
 }) 
 
 export const changeState = asyncHandler(async (req, res, next) => {
@@ -100,5 +101,5 @@ export const changeState = asyncHandler(async (req, res, next) => {
     if (!prescriptions) {
         return next(new Error(`this prescription not found `));
     }
-    return res.status(201).json({ prescriptions });
+    return res.status(200).json({ prescriptions });
 }) 
