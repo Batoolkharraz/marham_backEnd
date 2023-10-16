@@ -94,3 +94,11 @@ export const changeState = asyncHandler(async (req, res, next) => {
     
   });
   
+
+  export const getMedicine = asyncHandler(async (req, res, next) => {
+    const prescriptions = await prescriptionModel.find({ writtenFor:req.params.userId });
+    if (!prescriptions) {
+        return next(new Error(`this prescription not found `));
+    }
+    return res.status(201).json({ prescriptions });
+}) 
