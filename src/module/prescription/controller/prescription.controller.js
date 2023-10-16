@@ -13,29 +13,20 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
     }
 
     let now = new Date();
-    const medicineList = [];
-    const medicineIds = [];
-    for (const medicine of medicines) {
-        const checkmedicine = await medicineModel.findById(medicine.medicineId);
-        if (!checkmedicine) {
-            return next(new Error(`invalid medicine`, { cause: 400 }));
-        }
-        medicine.dateFrom = new Date(medicine.dateFrom);
-        medicine.dateTo = new Date(medicine.dateTo);
-        if (medicine.dateFrom < now || medicine.dateTo < now) {
-            return next(new Error(`please check the date again`, { cause: 400 }));
-        }
-        medicine.dateFrom = medicine.dateFrom.toLocaleDateString();
-        medicine.dateTo = medicine.dateTo.toLocaleDateString();
-
-
-        medicineList.push(medicine);
-        medicineIds.push(medicine.medicineId);
+    req.body.dateFrom = new Date(req.body.dateFrom);
+    req.body.dateTo = new Date(req.body.dateTo);
+    if (req.body.dateFrom < now || req.body.dateTo < now) {
+        return next(new Error(`please check the date again`, { cause: 400 }));
     }
+    req.body.dateFrom = req.body.dateFrom.toLocaleDateString();
+    req.body.dateTo = req.body.dateTo.toLocaleDateString();
+
     const prescription = await prescriptionModel.create({
         writtenFor: user._id,
         writtenBy: req.user._id,
-        medicines: medicineList,
+        dateFrom:req.body.dateFrom,
+        dateTo:req.body.dateTo,
+        medicines,
     })
 
     return res.status(201).json({ prescription });
@@ -54,7 +45,6 @@ export const deletePrescription = asyncHandler(async (req, res, next) => {
 //needs update
 export const updatePrescription = asyncHandler(async (req, res, next) => {
     const { prescriptionId } = req.params;
-    const { medicineId } = req.body;
     const prescription = await prescriptionModel.findOne({ _id: prescriptionId });
     if (!prescription) {
         return next(new Error(`this prescription not found `));
@@ -74,3 +64,33 @@ export const getPrescription = asyncHandler(async (req, res, next) => {
     }
     return res.status(201).json({ prescription });
 }) 
+
+export const getPrescriptionByUser = asyncHandler(async (req, res, next) => {
+    const prescriptions = await prescriptionModel.find({ writtenFor:req.params.userId });
+    if (!prescriptions) {
+        return next(new Error(`this prescription not found `));
+    }
+    return res.status(201).json({ prescriptions });
+}) 
+
+export const changeState = asyncHandler(async (req, res, next) => {
+    
+      const prescriptions = await prescriptionModel.find();
+      
+      if (!prescriptions || prescriptions.length === 0) {
+        return res.status(404).json({ message: 'No prescriptions found' });
+      }
+  
+      let now = new Date();
+      now = now.toLocaleDateString(); 
+  
+      for (const prescription of prescriptions) {
+        if (prescription.dateTo < now && prescription.state !== 'Done') {
+          await prescriptionModel.findByIdAndUpdate(prescription._id, { state: 'Done' });
+        }
+      }
+  
+      return res.status(200).json({ message: ' success' });
+    
+  });
+  
