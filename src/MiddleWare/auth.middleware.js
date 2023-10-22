@@ -1,6 +1,6 @@
 
 import { verifyToken } from '../Services/generateAndVerify.js';
-import userModel from "../../DB/model/user.model.js"
+import userModel from "../module/Authalaa/DB/Usermodel.js";
 import { asyncHandler } from '../Services/errorHandling.js';
 
 export const roles={

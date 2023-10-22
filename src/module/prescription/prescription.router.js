@@ -12,11 +12,8 @@ const router = Router();
 
 router.post('/',prescriptionCont.createPrescription);
 router.get('/:prescriptionId',prescriptionCont.getPrescription);
-router.get('/forUser/:userId',prescriptionCont.getPrescriptionByUser);
+router.get('/',prescriptionCont.getPrescriptionByUser);
+router.get('/forUser/:userId',prescriptionCont.getPrescriptionById);
 router.patch('/',prescriptionCont.changeState);
-/*
-router.patch('/update',auth(endPoint.update),validation(validators.updateMedicine),medicineCont.updateMedicine)
 
-router.get('/:medicineId',validation(validators.getMedicine),medicineCont.getMedicine);
-router.delete('/:medicineId',validation(validators.deleteMedicine),medicineCont.deleteMedicine);*/
 export default router;
