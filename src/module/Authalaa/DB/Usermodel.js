@@ -1,7 +1,7 @@
 import mongoose, { Schema,Types,model } from "mongoose";
 
 const userSchema = new Schema({
-    userName:{
+    username:{
         type:String,
         required:true,
     },
@@ -13,12 +13,13 @@ const userSchema = new Schema({
 
     phone:{
         type:String,
+        required:true,
     },
     password:{
         type:String,
         required:true,
     },
- 
+
 },{
     timestamps:true
 })
