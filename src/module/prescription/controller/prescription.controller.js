@@ -1,7 +1,7 @@
 import prescriptionModel from "../../../../DB/model/prescription.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import medicineModel from "../../../../DB/model/medicine.model.js";
-import userModel from "../../../../DB/model/user.model.js";
+import userModel from "../../Authalaa/DB/Usermodel.js";
 
 
 export const createPrescription = asyncHandler(async (req, res, next) => {
@@ -22,7 +22,7 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
     req.body.dateTo = req.body.dateTo.toLocaleDateString();
 
     const prescription = await prescriptionModel.create({
-        writtenFor: user._id,
+        writtenFor: user.__vid,
         writtenBy: req.user._id,
         dateFrom:req.body.dateFrom,
         dateTo:req.body.dateTo,
@@ -66,11 +66,15 @@ export const getPrescription = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ prescription });
 }) 
 
-export const getPrescriptionByUser = asyncHandler(async (req, res, next) => {
+export const getPrescriptionById = asyncHandler(async (req, res, next) => {
     const prescriptions = await prescriptionModel.find({ writtenFor:req.params.userId });
-    if (!prescriptions) {
-        return next(new Error(`this prescription not found `));
-    }
+    return res.status(200).json({ prescriptions });
+}) 
+
+export const getPrescriptionByUser = asyncHandler(async (req, res, next) => {
+    const user = await userModel.find({ email:req.body.email });
+    return res.status(200).json(user);
+    const prescriptions = await prescriptionModel.find({ writtenFor:user._id });
     return res.status(200).json({ prescriptions });
 }) 
 

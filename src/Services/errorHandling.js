@@ -8,7 +8,6 @@ export const asyncHandler=(fun)=>{
 }
 
 
-
 export const globalErrorHandel=(err,req,res,next)=>{
     if(process.env.MOOD=='DEV'){
         return res.status(500||err.cause).json({message:"catch error",stack:err.stack})

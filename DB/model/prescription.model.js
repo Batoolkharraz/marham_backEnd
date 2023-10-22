@@ -14,7 +14,7 @@ const prescriptionSchema = new Schema({
     dateFrom: { type: String, required: true },
     dateTo: { type: String, required: true },
     writtenBy: { type: Types.ObjectId, ref: 'Doctor', required: true },
-    writtenFor: { type: Types.ObjectId, ref: 'User', required: true },
+    writtenFor: { type: Types.ObjectId, ref: 'user', required: true },
     updatedBy: { type: Types.ObjectId, ref: 'Doctor' },
     state:{
         type:String,

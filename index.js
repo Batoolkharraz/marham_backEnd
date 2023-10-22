@@ -5,7 +5,7 @@ import initApp from './src/module/app.router.js';
 import connectDb from './DB/connection.js';
 // import  createInvoice  from './src/Services/pdf.js';
 import connectDBUser from './src/module/Authalaa/DB/connectionuser.js';
-import signuprouter from './src/module/auth/auth.router.js';
+import signuprouter from './src/module/Authalaa/signup/route.js';
 import signinsrouter from './src/module/Authalaa/signin/sroute.js';
 import sentrouter from './src/module/SentEmail/sentcode.js';
 
