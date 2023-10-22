@@ -14,7 +14,6 @@ export const signin = async (req, res) => {
     }
 
     const match = bcrypt.compareSync(password, user.password);
-
     if (!match) {
       // Password doesn't match
       return res.json(false);
