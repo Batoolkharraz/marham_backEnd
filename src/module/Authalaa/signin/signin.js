@@ -22,7 +22,7 @@ export const signin = async (req, res) => {
 
     // If both conditions are met, generate and return the token
     const token = jwt.sign(
-      { username: username, isLoggedIn: true },
+      { id:user._id, isLoggedIn: true },
       'blogNode3123',
       { expiresIn: '1h' }
     );
