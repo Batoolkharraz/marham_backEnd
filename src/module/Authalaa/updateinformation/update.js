@@ -51,6 +51,7 @@ export const upinfo = async (req, res) => {
         const result = await user.save();
 
         if (result) {
+            
             return res.json({ message: "User information updated successfully." });
         } else {
             return res.status(500).json({ message: 'Failed to update user information.' });

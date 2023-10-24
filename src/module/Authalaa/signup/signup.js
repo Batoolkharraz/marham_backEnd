@@ -6,7 +6,6 @@ export const signup =async (req,res)=>{
 const { username, email, phone, password } = req.body;
 
 let hashvalue=await bcrypt.hash(password,8);
-console.log(username, email, phone,hashvalue);
 const user = await usermodel.findOne({username});
 if(user){
     return res.json("false1");
