@@ -35,7 +35,7 @@ export const updatepass = async (req, res) => {
         if (result.modifiedCount > 0) {
             return res.json({ message: "Password updated successfully." });
         } else {
-            return res.status(404).json({ message: "User not found." });
+            return res.status(404).json(false3);
         }
     
     }
