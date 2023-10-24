@@ -8,7 +8,7 @@ import signinsrouter from './src/module/Authalaa/signin/sroute.js';
 import sentrouter from './src/module/SentEmail/sentcode.js';
 import signuprouter from './src/module/Authalaa/signup/route.js';
 import idreturn from './src/module/bato/idrouter.js';
-import updaterouter from './src/module/updateinformation/routeupdate.js';
+import updaterouter from './src/module/Authalaa/updateinformation/routeupdate.js';
 
 const app=express();
 
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use('/signin',signinsrouter);
 app.use('/signup',signuprouter);
 app.use('/updatePassword',sentrouter);
-app.use('/update',updaterouter);
+app.use('/updateUser',updaterouter)
 // app.use('/update',updaterouter);
 app.use('/giveme',idreturn);
 
