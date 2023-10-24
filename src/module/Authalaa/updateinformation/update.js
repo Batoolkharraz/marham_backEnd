@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import userModel from '../DB/Usermodel.js';
+import cloudinary from "../../../Services/cloudinary.js";
 
 export const upinfo = async (req, res) => {
     const { authorization } = req.headers;
@@ -39,10 +40,11 @@ export const upinfo = async (req, res) => {
             let hashvalue = await bcrypt.hash(password, 8);
             user.password = hashvalue;
         }
+
         if (req.file) {
-            const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, { folder: `${process.env.APP_NAME}/User` });
-            await cloudinary.uploader.destroy(category.image.public_id);
-            user.image = { secure_url, public_id }
+            const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, { folder: `${process.env.APP_NAME}/user` });
+            await cloudinary.uploader.destroy(user.image.public_id);
+            user.image = { secure_url, public_id };
         }
 
         // Save the user to update the document
