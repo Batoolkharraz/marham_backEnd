@@ -8,7 +8,7 @@ import signinsrouter from './src/module/Authalaa/signin/sroute.js';
 import sentrouter from './src/module/SentEmail/sentcode.js';
 import signuprouter from './src/module/Authalaa/signup/route.js';
 import idreturn from './src/module/bato/idrouter.js';
-import { upinfo } from './src/module/updateinformation/update.js';
+import updaterouter from './src/module/updateinformation/routeupdate.js';
 
 const app=express();
 
