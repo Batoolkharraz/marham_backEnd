@@ -69,10 +69,6 @@ export const updateDoctor=asyncHandler(async (req,res,next)=>{
     if(req.body.description){
         doctor.description=req.body.description;
     }
-    
-    if(req.body.description){
-        doctor.description=req.body.description;
-    }
     await doctor.save();
     return res.json({doctor})
 })
