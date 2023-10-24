@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import usermodel from '../DB/Usermodel.js';
 import bcrypt from 'bcrypt';
+import userModel from '../DB/Usermodel.js';
 
 export const upinfo = async (req, res) => {
     const { authorization } = req.headers;
@@ -18,7 +18,7 @@ export const upinfo = async (req, res) => {
     try {
         const decode = jwt.verify(token, 'blogNode3123');
         const id = decode.id;
-        const user = await usermodel.findOne({ _id: id });
+        const user = await userModel.findOne({ _id: id });
 
         if (!user) {
             return res.status(404).json({ message: "User not found." });
