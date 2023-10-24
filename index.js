@@ -19,7 +19,7 @@ app.use(express.json());
 app.use('/signin',signinsrouter);
 app.use('/signup',signuprouter);
 app.use('/updatePassword',sentrouter);
-app.use('/update',upinfo);
+app.use('/update',updaterouter);
 // app.use('/update',updaterouter);
 app.use('/giveme',idreturn);
 
