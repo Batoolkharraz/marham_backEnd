@@ -14,8 +14,6 @@ const categorySchema = new Schema ({
         type:Object,
         required:true,
     },
-    createdBy:{type:Types.ObjectId,ref:'User',required:true},
-    updatedBy:{type:Types.ObjectId,ref:'User',required:true},
 },
 {
     timestamps:true

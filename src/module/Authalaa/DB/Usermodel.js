@@ -19,6 +19,9 @@ const userSchema = new Schema({
         type:String,
         required:true,
     },
+    image:{
+        type:Object,
+    }
 
 },{
     timestamps:true

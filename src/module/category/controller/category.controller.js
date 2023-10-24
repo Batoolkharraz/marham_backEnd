@@ -13,9 +13,7 @@ export const createCategory=asyncHandler(async (req,res,next)=>{
     const category=await categoryModel.create({
         name,
         description:req.body.description,
-        image:{secure_url,public_id},
-        createdBy:req.user._id,
-        updatedBy:req.user._id});
+        image:{secure_url,public_id}});
     return res.status(201).json({category});
 
 })
@@ -49,7 +47,6 @@ export const updateCategory=asyncHandler(async (req,res,next)=>{
     if(req.body.description){
         category.description=req.body.description;
     }
-    category.updatedBy=req.user._id;
     await category.save();
     return res.json({category})
 })

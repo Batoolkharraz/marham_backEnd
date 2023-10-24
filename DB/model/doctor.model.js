@@ -38,7 +38,6 @@ const doctorSchema = new Schema ({
         type:Number
     },
     categoryId:{type:Types.ObjectId,ref:'Category',required:true},
-    updatedBy:{type:Types.ObjectId,ref:'User',required:true},
 },
 {
     timestamps:true

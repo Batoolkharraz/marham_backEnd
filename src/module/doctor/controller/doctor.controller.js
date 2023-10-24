@@ -26,8 +26,7 @@ export const createDoctor=asyncHandler(async (req,res,next)=>{
         email:req.body.email,
         phone:req.body.phone,
         address:req.body.address,
-        password:Hpassword,
-        updatedBy:req.user._id});
+        password:Hpassword,});
     return res.status(201).json({doctor});
 
 })
@@ -74,7 +73,6 @@ export const updateDoctor=asyncHandler(async (req,res,next)=>{
     if(req.body.description){
         doctor.description=req.body.description;
     }
-    doctor.updatedBy=req.user._id;
     await doctor.save();
     return res.json({doctor})
 })

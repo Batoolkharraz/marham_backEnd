@@ -1,5 +1,6 @@
 import usermodel from '../DB/Usermodel.js';
 import bcrypt from 'bcrypt';
+import cloudinary from "../../../Services/cloudinary.js";
 export const signup =async (req,res)=>{
    
 const { username, email, phone, password } = req.body;
@@ -14,7 +15,10 @@ const user2 = await usermodel.findOne({email});
 if(user2){
     return  res.json("false2");
 }
-else
-{const createuser= await usermodel.create({username, email, phone,password: hashvalue});
-    return res.json({message:"from signup"});}
+else{
+//const {secure_url,public_id}=await cloudinary.uploader.upload(req.file.path,{folder:`${process.env.APP_NAME}/User`});
+    
+const createuser= await usermodel.create({username, email, phone,password: hashvalue});
+    return res.json({message:"from signup"});
+}
 }
