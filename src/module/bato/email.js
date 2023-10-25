@@ -15,22 +15,8 @@ export const sent = async (req, res) => {
 }
 
 export const getUser = async (req, res) => {
-    const { authorization } = req.headers;
-
-    if (!authorization || !authorization.startsWith('Alaa__')) {
-        return res.status(401).json({ message: "Authorization is required" });
-    }
-
-    const token = authorization.split('Alaa__')[1];
-
-    if (!token) {
-        return res.status(401).json({ message: "Token is required" });
-    }
-
     try {
-        const decode = jwt.verify(token, 'blogNode3123');
-        const id = decode.id;
-        const user = await usermodel.findOne({ _id:id });
+        const user = await usermodel.findOne({ _id:req.params.userId });
         return res.json(user);
     }
     catch (error) {
