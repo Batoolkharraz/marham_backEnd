@@ -5,6 +5,6 @@ import * as scheduleCont from './controller/schedule.controller.js';
 const router = Router();
 
 
-router.post('/',scheduleCont.createSchedule);
+router.post('/:docId',scheduleCont.createSchedule);
 
 export default router;

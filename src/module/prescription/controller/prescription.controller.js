@@ -22,7 +22,7 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
     req.body.dateTo = req.body.dateTo.toLocaleDateString();
 
     const prescription = await prescriptionModel.create({
-        writtenFor: user.__vid,
+        writtenFor: user._id,
         writtenBy: req.user._id,
         dateFrom:req.body.dateFrom,
         dateTo:req.body.dateTo,
