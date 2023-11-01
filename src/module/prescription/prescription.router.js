@@ -10,7 +10,7 @@ import { endPoint } from "./prescription.endPoint.js";
 const router = Router();
 
 
-router.post('/',prescriptionCont.createPrescription);
+router.post('/:docId',prescriptionCont.createPrescription);
 router.get('/:prescriptionId',prescriptionCont.getPrescription);
 router.get('/',prescriptionCont.getPrescriptionByUser);
 router.get('/forUser/:userId',prescriptionCont.getPrescriptionById);

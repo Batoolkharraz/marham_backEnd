@@ -23,7 +23,7 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
 
     const prescription = await prescriptionModel.create({
         writtenFor: user._id,
-        writtenBy: req.user._id,
+        writtenBy: req.params.docId,
         dateFrom:req.body.dateFrom,
         dateTo:req.body.dateTo,
         medicines,
