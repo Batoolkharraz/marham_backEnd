@@ -6,5 +6,6 @@ const router = Router();
 
 
 router.post('/:docId',scheduleCont.createSchedule);
+router.get('/:docId',scheduleCont.getSchedule);
 
 export default router;

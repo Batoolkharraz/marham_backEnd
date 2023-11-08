@@ -99,3 +99,10 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
 });
 
 
+export const getSchedule = asyncHandler(async (req, res, next) => {
+    const schedules = await scheduleModel.find({ writtenBy:req.params.docId });
+    if (!schedules) {
+        return next(new Error(`schedules not found `));
+    }
+    return res.status(200).json({ schedules });
+}) 
