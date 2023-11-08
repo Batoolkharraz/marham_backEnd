@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import cloudinary from "../../../Services/cloudinary.js";
 export const signup =async (req,res)=>{
    
-const { username, email, phone, password } = req.body;
+const { username, email, phone, password ,role} = req.body;
 
 let hashvalue=await bcrypt.hash(password,8);
 const user = await usermodel.findOne({username});
