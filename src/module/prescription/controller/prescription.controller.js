@@ -43,20 +43,6 @@ export const deletePrescription = asyncHandler(async (req, res, next) => {
     return res.status(201).json({ message: "success" });
 })
 
-//needs update
-export const updatePrescription = asyncHandler(async (req, res, next) => {
-    const { prescriptionId } = req.params;
-    const prescription = await prescriptionModel.findOne({ _id: prescriptionId });
-    if (!prescription) {
-        return next(new Error(`this prescription not found `));
-    }
-
-    if (req.body.qty) {
-
-        return next(new Error(`fail to change status this order`, { cause: 400 }));
-    }
-    return res.status(201).json({ message: "success" });
-})
 
 export const getPrescription = asyncHandler(async (req, res, next) => {
     const prescription = await prescriptionModel.findById( req.params.prescriptionId );

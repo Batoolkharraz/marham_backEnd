@@ -1,3 +1,4 @@
+import bookedModel from "../../../../DB/model/booked.model.js";
 import scheduleModel from "../../../../DB/model/schedule.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 
@@ -109,9 +110,42 @@ export const getSchedule = asyncHandler(async (req, res, next) => {
 })
 
 export const booking = asyncHandler(async (req, res, next) => {
-    const schedules = await scheduleModel.find({ writtenBy: req.params.docId });
-    if (!schedules) {
-        return next(new Error(`schedules not found `));
+    const bookedId = req.params.bookedId;
+
+    // Create a booked record
+    const booked = await bookedModel.create({
+        bookedBy: req.params.userId,
+        bookId: req.params.bookedId,
+        doctorId: req.params.docId,
+    });
+
+    try {
+        // Use findOneAndUpdate with arrayFilters
+        const schedules = await scheduleModel.findOneAndUpdate(
+            {
+                'scheduleByDay.timeSlots._id': bookedId,
+            },
+            {
+                $set: {
+                    'scheduleByDay.$[day].timeSlots.$[slot].is_booked': true,
+                },
+            },
+            {
+                arrayFilters: [
+                    { 'day.timeSlots._id': bookedId },
+                    { 'slot._id': bookedId },
+                ],
+                new: true, // Return the modified document
+            }
+        );
+
+        // Check if the schedule was found
+        if (!schedules) {
+            return next(new Error(`Schedules not found`));
+        }
+
+        return res.status(200).json( 'success' );
+    } catch (error) {
+        return next(error);
     }
-    return res.status(200).json({ schedules });
-}) 
+});
