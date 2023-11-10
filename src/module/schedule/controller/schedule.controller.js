@@ -24,7 +24,8 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
         });
 
         // Add the formatted time to the time slots array
-        timeSlots.push(formattedTime);
+        timeSlots.push({ time: formattedTime, is_booked: false });
+
 
         // Increment the current time by the duration in minutes
         currentTime.setMinutes(currentTime.getMinutes() + duration);
@@ -72,13 +73,13 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
             startTime: startTime,
             endTime: endTime,
             date: date,
-            timeSlots: timeSlots
+            timeSlotstime: timeSlots,
         });
 
         // Save the updated doctor's schedule
         await schedule.save();
-        
-    return res.status(201).json({ schedule });
+
+        return res.status(201).json({ schedule });
 
     }
     else {
@@ -92,15 +93,23 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
                 timeSlots: timeSlots
             }]
         })
-        
-    return res.status(201).json({ newSchedule });
+
+        return res.status(201).json({ newSchedule });
     }
 
 });
 
 
 export const getSchedule = asyncHandler(async (req, res, next) => {
-    const schedules = await scheduleModel.find({ writtenBy:req.params.docId });
+    const schedules = await scheduleModel.find({ writtenBy: req.params.docId });
+    if (!schedules) {
+        return next(new Error(`schedules not found `));
+    }
+    return res.status(200).json({ schedules });
+})
+
+export const booking = asyncHandler(async (req, res, next) => {
+    const schedules = await scheduleModel.find({ writtenBy: req.params.docId });
     if (!schedules) {
         return next(new Error(`schedules not found `));
     }

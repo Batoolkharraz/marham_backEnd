@@ -7,8 +7,9 @@ const scheduleSchema = new Schema({
             startTime: { type: String, required: true },
             endTime: { type: String, required: true },
             date: { type: String, required: true },
-            timeSlots:[{
-                type:String,
+            timeSlots: [{
+                time: { type: String },
+                is_booked: { type: Boolean, default: false },
             }]
     }],
     
