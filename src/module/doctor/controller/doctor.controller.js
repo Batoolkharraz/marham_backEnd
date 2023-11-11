@@ -49,9 +49,9 @@ export const updateDoctor=asyncHandler(async (req,res,next)=>{
     }
 
     if(req.file){
-        const {secure_url,public_id}=await cloudinary.uploader.upload(req.file.path,{folder:`${process.env.APP_NAME}/category`});
-        await cloudinary.uploader.destroy(category.image.public_id);
-        category.image={secure_url,public_id}
+        const {secure_url,public_id}=await cloudinary.uploader.upload(req.file.path,{folder:`${process.env.APP_NAME}/doctor`});
+        await cloudinary.uploader.destroy(doctor.image.public_id);
+        doctor.image={secure_url,public_id}
     }
 
     if(req.body.description){
@@ -66,9 +66,6 @@ export const updateDoctor=asyncHandler(async (req,res,next)=>{
         doctor.address=req.body.address;
     }
     
-    if(req.body.description){
-        doctor.description=req.body.description;
-    }
     await doctor.save();
     return res.json({doctor})
 })

@@ -149,3 +149,12 @@ export const booking = asyncHandler(async (req, res, next) => {
         return next(error);
     }
 });
+
+
+export const getScheduleById = asyncHandler(async (req, res, next) => {
+    const apps = await bookedModel.find({ bookedBy: req.params.userId });
+    if (!apps) {
+        return next(new Error(`schedules not found `));
+    }
+    return res.status(200).json({ apps });
+})
