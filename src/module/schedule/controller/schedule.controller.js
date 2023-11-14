@@ -271,3 +271,48 @@ export const appDone = asyncHandler(async (req, res, next) => {
 
     return next(new Error('Appointment not found'));
 });
+
+export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+
+    const canceledApps = await bookedModel.find(
+        {
+            bookedBy: userId,
+            'bookInfo.is_canceled': true
+        },
+        {
+            'bookInfo.$': 1
+        }
+    );
+
+    if (!canceledApps || canceledApps.length === 0) {
+        return next(new Error('Canceled appointments not found'));
+    }
+
+    const canceledAppInfoList = canceledApps.map(app => app.bookInfo);
+
+    return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
+});
+
+
+export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+
+    const canceledApps = await bookedModel.find(
+        {
+            bookedBy: userId,
+            'bookInfo.is_attend': true
+        },
+        {
+            'bookInfo.$': 1
+        }
+    );
+
+    if (!canceledApps || canceledApps.length === 0) {
+        return next(new Error('Canceled appointments not found'));
+    }
+
+    const canceledAppInfoList = canceledApps.map(app => app.bookInfo);
+
+    return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
+});
