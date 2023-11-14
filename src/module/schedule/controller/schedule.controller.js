@@ -1,6 +1,7 @@
 import bookedModel from "../../../../DB/model/booked.model.js";
 import scheduleModel from "../../../../DB/model/schedule.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
+import userModel from "../../Authalaa/DB/Usermodel.js";
 
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
@@ -112,15 +113,40 @@ export const getSchedule = asyncHandler(async (req, res, next) => {
 export const booking = asyncHandler(async (req, res, next) => {
     const bookedId = req.params.bookedId;
 
-    // Create a booked record
-    const booked = await bookedModel.create({
-        bookedBy: req.params.userId,
-        bookId: req.params.bookedId,
-        doctorId: req.params.docId,
-    });
+    const user = await userModel.findById(req.params.userId);
+
+    if (!user) {
+        return next(new Error('User not found'));
+    }
+
+    let booked;
+
+    // Check if the user already has a booking entry
+    const existingBooking = await bookedModel.findOne({ bookedBy: req.params.userId });
+
+    if (existingBooking) {
+        // User already has a booking entry, add the new schedule to the bookInfo list
+        existingBooking.bookInfo.push({
+            bookId: bookedId,
+            doctorId: req.params.docId,  // Update with the actual field from the request body
+            is_attend: false,  // Set to the desired initial value
+        });
+
+        // Save the updated booking entry
+        booked = await existingBooking.save();
+    } else {
+        // User doesn't have a booking entry, create a new one
+        booked = await bookedModel.create({
+            bookedBy: req.params.userId,
+            bookInfo: [{
+                bookId: bookedId,
+                doctorId: req.params.docId,  // Update with the actual field from the request body
+                is_attend: false,  // Set to the desired initial value
+            }],
+        });
+    }
 
     try {
-        // Use findOneAndUpdate with arrayFilters
         const schedules = await scheduleModel.findOneAndUpdate(
             {
                 'scheduleByDay.timeSlots._id': bookedId,
@@ -132,19 +158,18 @@ export const booking = asyncHandler(async (req, res, next) => {
             },
             {
                 arrayFilters: [
-                    { 'day.timeSlots._id': bookedId },
+                    { 'day._id': bookedId },  // Update with the actual field in scheduleByDay
                     { 'slot._id': bookedId },
                 ],
-                new: true, // Return the modified document
+                new: true,
             }
         );
 
-        // Check if the schedule was found
         if (!schedules) {
-            return next(new Error(`Schedules not found`));
+            return next(new Error('Schedules not found'));
         }
 
-        return res.status(200).json( 'success' );
+        return res.status(200).json('success');
     } catch (error) {
         return next(error);
     }
@@ -152,6 +177,14 @@ export const booking = asyncHandler(async (req, res, next) => {
 
 
 export const getScheduleById = asyncHandler(async (req, res, next) => {
+    const apps = await bookedModel.find({ bookedBy: req.params.userId });
+    if (!apps) {
+        return next(new Error(`schedules not found `));
+    }
+    return res.status(200).json({ apps });
+})
+
+export const getAppByUser = asyncHandler(async (req, res, next) => {
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
     if (!apps) {
         return next(new Error(`schedules not found `));
