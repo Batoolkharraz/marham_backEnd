@@ -6,6 +6,7 @@ const bookedSchema = new Schema({
         bookId: { type: Types.ObjectId, ref: 'Schedule', required: true },
         doctorId: { type: Types.ObjectId, ref: 'Doctor', required: true },
         is_attend: { type: Boolean, default: false },
+        is_canceled: { type: Boolean, default: false },
     }],
 },
     {
