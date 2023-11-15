@@ -2,6 +2,8 @@ import bookedModel from "../../../../DB/model/booked.model.js";
 import scheduleModel from "../../../../DB/model/schedule.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
+import mongoose, { Schema, model } from 'mongoose';
+
 
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
@@ -105,7 +107,31 @@ export const getSchedule = asyncHandler(async (req, res, next) => {
         return next(new Error(`schedules not found `));
     }
     return res.status(200).json({ schedules });
-})
+});
+
+
+
+export const getApp = asyncHandler(async (req, res, next) => {
+    try {
+        const apps = await scheduleModel.aggregate([
+            {
+                $unwind: '$scheduleByDay'
+            },
+            {
+                $unwind: '$scheduleByDay.timeSlots'
+            },
+            {
+                $match: {
+                    'scheduleByDay.timeSlots._id': new mongoose.Types.ObjectId(req.params.bookId)
+                }
+            }
+        ]);
+
+        return res.status(200).json({ apps });
+    } catch (error) {
+        return next(error);
+    }
+});
 
 export const booking = asyncHandler(async (req, res, next) => {
     const bookedId = req.params.bookedId;
@@ -293,7 +319,6 @@ export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
 
     return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
 });
-
 
 export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
