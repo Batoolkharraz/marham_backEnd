@@ -1,4 +1,5 @@
 import bookedModel from "../../../../DB/model/booked.model.js";
+import doctorModel from "../../../../DB/model/doctor.model.js";
 import scheduleModel from "../../../../DB/model/schedule.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
@@ -127,7 +128,9 @@ export const getApp = asyncHandler(async (req, res, next) => {
             }
         ]);
 
-        return res.status(200).json({ apps });
+        const doctor=await doctorModel.findById(req.params.docId);
+        var docName=doctor.name;
+        return res.status(200).json({apps,docName} );
     } catch (error) {
         return next(error);
     }
