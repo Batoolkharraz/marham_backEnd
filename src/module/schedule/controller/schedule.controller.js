@@ -3,8 +3,7 @@ import doctorModel from "../../../../DB/model/doctor.model.js";
 import scheduleModel from "../../../../DB/model/schedule.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
-import mongoose, { Schema, model } from 'mongoose';
-
+import mongoose, { Schema, model, Types } from 'mongoose';
 
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
@@ -128,9 +127,9 @@ export const getApp = asyncHandler(async (req, res, next) => {
             }
         ]);
 
-        const doctor=await doctorModel.findById(req.params.docId);
-        var docName=doctor.name;
-        return res.status(200).json({apps,docName} );
+        const doctor = await doctorModel.findById(req.params.docId);
+        var docName = doctor.name;
+        return res.status(200).json({ apps, docName });
     } catch (error) {
         return next(error);
     }
@@ -207,16 +206,23 @@ export const booking = asyncHandler(async (req, res, next) => {
 });
 
 export const getAppByUser = asyncHandler(async (req, res, next) => {
-    const apps = await bookedModel.find({ bookedBy: req.params.userId });
+    const userId = req.params.userId;
 
-    if (!apps || apps.length === 0) {
-        return next(new Error('Schedules not found'));
+    const notAttendedNotCanceledApps = await bookedModel.find({
+        bookedBy: userId,
+        'bookInfo.is_canceled': false,
+        'bookInfo.is_attend': false
+    });
+
+    if (!notAttendedNotCanceledApps || notAttendedNotCanceledApps.length === 0) {
+        return next(new Error('Appointments not found'));
     }
 
-    const appInfoList = apps.map(app => app.bookInfo);
-
-    return res.status(200).json({ appInfo: appInfoList });
+    const appsInfoList = notAttendedNotCanceledApps.map(app => app.bookInfo);
+    return res.status(200).json({ AppsInfo: appsInfoList });
 });
+
+
 
 export const appCancel = asyncHandler(async (req, res, next) => {
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
@@ -337,7 +343,7 @@ export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     );
 
     if (!canceledApps || canceledApps.length === 0) {
-        return next(new Error('Canceled appointments not found'));
+        return next(new Error('done appointments not found'));
     }
 
     const canceledAppInfoList = canceledApps.map(app => app.bookInfo);
