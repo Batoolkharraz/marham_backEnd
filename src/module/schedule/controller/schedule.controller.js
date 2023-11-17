@@ -208,18 +208,25 @@ export const booking = asyncHandler(async (req, res, next) => {
 export const getAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
 
-    const notAttendedNotCanceledApps = await bookedModel.find({
-        bookedBy: userId,
-        'bookInfo.is_canceled': false,
-        'bookInfo.is_attend': false
-    });
+    const allApps = await bookedModel.find({ bookedBy: userId });
 
-    if (!notAttendedNotCanceledApps || notAttendedNotCanceledApps.length === 0) {
+    if (!allApps || allApps.length === 0) {
         return next(new Error('Appointments not found'));
     }
 
-    const appsInfoList = notAttendedNotCanceledApps.map(app => app.bookInfo);
-    return res.status(200).json({ AppsInfo: appsInfoList });
+    const notAttendNotCanceledAppInfoList = allApps.reduce((result, app) => {
+        const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
+        if (filteredBookInfo.length > 0) {
+            result.push(filteredBookInfo);
+        }
+        return result;
+    }, []);
+
+    if (notAttendNotCanceledAppInfoList.length === 0) {
+        return next(new Error('Appointments where not attended and not canceled not found'));
+    }
+
+    return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
 });
 
 
@@ -310,21 +317,23 @@ export const appDone = asyncHandler(async (req, res, next) => {
 export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
 
-    const canceledApps = await bookedModel.find(
-        {
-            bookedBy: userId,
-            'bookInfo.is_canceled': true
-        },
-        {
-            'bookInfo.$': 1
-        }
-    );
+    const allApps = await bookedModel.find({ bookedBy: userId });
 
-    if (!canceledApps || canceledApps.length === 0) {
-        return next(new Error('Canceled appointments not found'));
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
     }
 
-    const canceledAppInfoList = canceledApps.map(app => app.bookInfo);
+    const canceledAppInfoList = allApps.reduce((result, app) => {
+        const filteredBookInfo = app.bookInfo.filter(info => info.is_canceled);
+        if (filteredBookInfo.length > 0) {
+            result.push(filteredBookInfo);
+        }
+        return result;
+    }, []);
+
+    if (canceledAppInfoList.length === 0) {
+        return next(new Error('Canceled appointments not found'));
+    }
 
     return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
 });
@@ -332,21 +341,22 @@ export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
 export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
 
-    const canceledApps = await bookedModel.find(
-        {
-            bookedBy: userId,
-            'bookInfo.is_attend': true
-        },
-        {
-            'bookInfo.$': 1
-        }
-    );
+    const allApps = await bookedModel.find({ bookedBy: userId });
 
-    if (!canceledApps || canceledApps.length === 0) {
-        return next(new Error('done appointments not found'));
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
     }
 
-    const canceledAppInfoList = canceledApps.map(app => app.bookInfo);
+    const attendAppInfoList = allApps.reduce((result, app) => {
+        const filteredBookInfo = app.bookInfo.filter(info => info.is_attend);
+        if (filteredBookInfo.length > 0) {
+            result.push(filteredBookInfo);
+        }
+        return result;
+    }, []);
 
-    return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
+    if (attendAppInfoList.length === 0) {
+        return next(new Error('Attended appointments not found'));
+    }
+    return res.status(200).json({ canceledAppInfo: attendAppInfoList  });
 });
