@@ -1,6 +1,7 @@
 import bookedModel from "../../../../DB/model/booked.model.js";
 import doctorModel from "../../../../DB/model/doctor.model.js";
 import scheduleModel from "../../../../DB/model/schedule.model.js";
+import appointmentModel from "../../../../DB/model/docApp.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import mongoose, { Schema, model, Types } from 'mongoose';
@@ -135,6 +136,7 @@ export const getApp = asyncHandler(async (req, res, next) => {
     }
 });
 
+
 export const booking = asyncHandler(async (req, res, next) => {
     const bookedId = req.params.bookedId;
 
@@ -193,17 +195,60 @@ export const booking = asyncHandler(async (req, res, next) => {
             arrayFilters: [
                 { 'slot._id': bookedId },
             ],
-            new: true,
+            new: true
         }
     );
-
 
     if (!schedules) {
         return next(new Error('Schedules not found'));
     }
 
+    // Check if the bookedFor already exists in the Appointment model
+    const existingAppointment = await appointmentModel.findOne({
+        bookedFor: req.params.docId,
+        'bookInfo.bookId': bookedId,
+    });
+
+    if (existingAppointment) {
+        // bookedId already exists for the bookedFor, update the existing entry
+        await appointmentModel.findOneAndUpdate(
+            {
+                bookedFor: req.params.docId,
+                'bookInfo.bookId': bookedId,
+            },
+            {
+                $set: {
+                    'bookInfo.$.is_attend': false,  // Set to the desired initial value
+                    'bookInfo.$.is_canceled': false,  // Set to the desired initial value
+                },
+            }
+        );
+    } else {
+        // bookedId doesn't exist for the bookedFor, add a new entry
+        await appointmentModel.findOneAndUpdate(
+            {
+                bookedFor: req.params.docId,
+            },
+            {
+                $push: {
+                    bookInfo: {
+                        bookId: bookedId,
+                        userId: req.params.userId,
+                        is_attend: false,
+                        is_canceled: false,
+                    },
+                },
+            },
+            {
+                upsert: true,  // Create a new entry if not exists
+            }
+        );
+    }
+
     return res.status(200).json('success');
 });
+
+
 
 export const getAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
@@ -229,7 +274,52 @@ export const getAppByUser = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
 });
 
+export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
 
+    const allApps = await bookedModel.find({ bookedBy: userId });
+
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
+    }
+
+    const canceledAppInfoList = allApps.reduce((result, app) => {
+        const filteredBookInfo = app.bookInfo.filter(info => info.is_canceled);
+        if (filteredBookInfo.length > 0) {
+            result.push(filteredBookInfo);
+        }
+        return result;
+    }, []);
+
+    if (canceledAppInfoList.length === 0) {
+        return next(new Error('Canceled appointments not found'));
+    }
+
+    return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
+});
+
+export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+
+    const allApps = await bookedModel.find({ bookedBy: userId });
+
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
+    }
+
+    const attendAppInfoList = allApps.reduce((result, app) => {
+        const filteredBookInfo = app.bookInfo.filter(info => info.is_attend);
+        if (filteredBookInfo.length > 0) {
+            result.push(filteredBookInfo);
+        }
+        return result;
+    }, []);
+
+    if (attendAppInfoList.length === 0) {
+        return next(new Error('Attended appointments not found'));
+    }
+    return res.status(200).json({ canceledAppInfo: attendAppInfoList  });
+});
 
 export const appCancel = asyncHandler(async (req, res, next) => {
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
@@ -273,8 +363,32 @@ export const appCancel = asyncHandler(async (req, res, next) => {
             if (!schedule) {
                 return next(new Error('Schedule not found'));
             }
+            // Find the corresponding appointment and update is_canceled to true
+            const appsDoc = await appointmentModel.find({ bookedFor: req.params.docId });
 
-            return res.status(200).json('success');
+            if (!appsDoc || appsDoc.length === 0) {
+                return next(new Error('Schedules not found'));
+            }
+
+            // Extract appInfo from each document in the apps array
+            const DocappInfoList = appsDoc.map(Docapp => Docapp.bookInfo);
+
+            // Loop through each appInfo to find and update the specified bookId
+            for (const DocappInfo of DocappInfoList) {
+                const DocindexToUpdate = DocappInfo.findIndex(Docapp => Docapp.bookId.toString() === req.params.bookId);
+
+                if (DocindexToUpdate !== -1) {
+                    // Update the is_canceled field to true
+                    DocappInfo[DocindexToUpdate].is_canceled = true;
+
+                    // Save the updated bookedModel
+                    await appointmentModel.updateOne({ bookedFor: req.params.docId }, { bookInfo: DocappInfo });
+
+                    return res.status(200).json('success');
+                }
+            }
+
+            return next(new Error('Appointment not found'));
         }
     }
 
@@ -282,6 +396,33 @@ export const appCancel = asyncHandler(async (req, res, next) => {
 });
 
 export const appDone = asyncHandler(async (req, res, next) => {
+    const docApps = await appointmentModel.find({ bookedFor: req.params.docId });
+
+    if (!docApps || docApps.length === 0) {
+        return next(new Error('Schedules not found'));
+    }
+
+    // Extract appInfo from each document in the apps array
+    const docappInfoList = docApps.map(docapp => docapp.bookInfo);
+
+    // Loop through each appInfo to find and update the specified bookId
+    for (const docappInfo of docappInfoList) {
+        const docindexToUpdate = docappInfo.findIndex(docapp => docapp.bookId.toString() === req.params.bookId);
+
+        if (docindexToUpdate !== -1) {
+            // Check if the appointment is already canceled
+            if (docappInfo[docindexToUpdate].is_canceled) {
+                return res.status(200).json('Appointment is already canceled');
+            }
+
+            // Update the is_attend field to true
+            docappInfo[docindexToUpdate].is_attend = true;
+
+            // Save the updated bookedModel
+            await appointmentModel.updateOne({ bookedFor: req.params.docId }, { bookInfo: docappInfo });
+        }
+    }
+
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
 
     if (!apps || apps.length === 0) {
@@ -306,18 +447,42 @@ export const appDone = asyncHandler(async (req, res, next) => {
 
             // Save the updated bookedModel
             await bookedModel.updateOne({ bookedBy: req.params.userId }, { bookInfo: appInfo });
-
-            return res.status(200).json('success');
         }
     }
 
-    return next(new Error('Appointment not found'));
+    return res.status(200).json('success');
 });
 
-export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
-    const userId = req.params.userId;
 
-    const allApps = await bookedModel.find({ bookedBy: userId });
+
+export const getAppByDoctor = asyncHandler(async (req, res, next) => {
+    const docId = req.params.docId;
+
+    const allApps = await appointmentModel.find({ bookedFor: docId });
+
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
+    }
+
+    const notAttendNotCanceledAppInfoList = allApps.reduce((result, app) => {
+        const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
+        if (filteredBookInfo.length > 0) {
+            result.push(filteredBookInfo);
+        }
+        return result;
+    }, []);
+
+    if (notAttendNotCanceledAppInfoList.length === 0) {
+        return next(new Error('Appointments where not attended and not canceled not found'));
+    }
+
+    return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
+});
+
+export const getCancelAppByDoctor = asyncHandler(async (req, res, next) => {
+    const docId = req.params.docId;
+
+    const allApps = await appointmentModel.find({ bookedFor: docId });
 
     if (!allApps || allApps.length === 0) {
         return next(new Error('Appointments not found'));
@@ -338,10 +503,10 @@ export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
 });
 
-export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
-    const userId = req.params.userId;
+export const getDoneAppByDoctor = asyncHandler(async (req, res, next) => {
+    const docId = req.params.docId;
 
-    const allApps = await bookedModel.find({ bookedBy: userId });
+    const allApps = await appointmentModel.find({ bookedFor: docId });
 
     if (!allApps || allApps.length === 0) {
         return next(new Error('Appointments not found'));
