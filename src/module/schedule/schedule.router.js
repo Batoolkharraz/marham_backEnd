@@ -7,6 +7,7 @@ const router = Router();
 
 router.post('/:docId',scheduleCont.createSchedule);
 router.get('/:docId',scheduleCont.getSchedule);
+
 router.get('/appointment/:bookId/:docId',scheduleCont.getApp);
 router.post('/:userId/:bookedId/:docId',scheduleCont.booking);
 router.get('/byUser/all/:userId',scheduleCont.getAppByUser);
@@ -18,5 +19,6 @@ router.patch('/done/:userId/:bookId/:docId',scheduleCont.appDone);
 router.get('/byDoctor/all/:docId',scheduleCont.getAppByDoctor);
 router.get('/byDoctor/cancel/:docId',scheduleCont.getCancelAppByDoctor);
 router.get('/byDoctor/done/:docId',scheduleCont.getDoneAppByDoctor);
+router.get('/doctorAppointment/:bookId/:userId',scheduleCont.getDocAppInfo);
 
 export default router;

@@ -525,3 +525,28 @@ export const getDoneAppByDoctor = asyncHandler(async (req, res, next) => {
     }
     return res.status(200).json({ canceledAppInfo: attendAppInfoList  });
 });
+
+
+export const getDocAppInfo = asyncHandler(async (req, res, next) => {
+    try {
+        const apps = await scheduleModel.aggregate([
+            {
+                $unwind: '$scheduleByDay'
+            },
+            {
+                $unwind: '$scheduleByDay.timeSlots'
+            },
+            {
+                $match: {
+                    'scheduleByDay.timeSlots._id': new mongoose.Types.ObjectId(req.params.bookId)
+                }
+            }
+        ]);
+
+        const  user = await userModel.findById(req.params.userId);
+        var userName =  user.username;
+        return res.status(200).json({ apps, userName });
+    } catch (error) {
+        return next(error);
+    }
+});
