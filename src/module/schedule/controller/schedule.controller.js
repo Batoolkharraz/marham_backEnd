@@ -5,6 +5,8 @@ import appointmentModel from "../../../../DB/model/docApp.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import mongoose, { Schema, model, Types } from 'mongoose';
+import { parseISO, format } from 'date-fns';
+import isToday from 'date-fns/isToday/index.js';
 
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
@@ -248,8 +250,6 @@ export const booking = asyncHandler(async (req, res, next) => {
     return res.status(200).json('success');
 });
 
-
-
 export const getAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
 
@@ -318,7 +318,7 @@ export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     if (attendAppInfoList.length === 0) {
         return next(new Error('Attended appointments not found'));
     }
-    return res.status(200).json({ canceledAppInfo: attendAppInfoList  });
+    return res.status(200).json({ canceledAppInfo: attendAppInfoList });
 });
 
 export const appCancel = asyncHandler(async (req, res, next) => {
@@ -523,7 +523,58 @@ export const getDoneAppByDoctor = asyncHandler(async (req, res, next) => {
     if (attendAppInfoList.length === 0) {
         return next(new Error('Attended appointments not found'));
     }
-    return res.status(200).json({ canceledAppInfo: attendAppInfoList  });
+    return res.status(200).json({ canceledAppInfo: attendAppInfoList });
+});
+
+export const getTodayAppByDoctor = asyncHandler(async (req, res, next) => {
+    const docId = req.params.docId;
+
+    const today = new Date(); // Get today's date
+
+    const allApps = await appointmentModel.find({
+        bookedFor: docId
+    });
+
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
+    }
+
+    let notAttendNotCanceledAppInfoList = [];
+
+    const formattedToday = format(today, 'yyyy/MM/dd');
+    await Promise.all(
+        allApps.map(async (app) => {
+            const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
+            for (let bookInfo of filteredBookInfo) {
+                const schedule = await scheduleModel.findOne({
+                    'scheduleByDay.timeSlots._id': bookInfo.bookId,
+                });
+
+                if (schedule) {
+                    for (const slot of schedule.scheduleByDay) {
+                        for (const slotTime of slot.timeSlots) {
+                            if (slotTime._id.equals(bookInfo.bookId)) {
+                                if (formattedToday.localeCompare(slot.date) === 0) {
+                                    notAttendNotCanceledAppInfoList.push(bookInfo);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        })
+    );
+
+
+    // return the new list
+    if (notAttendNotCanceledAppInfoList.length === 0) {
+        return next(new Error('Appointments where not attended and not canceled not found for today'));
+    }
+
+    return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
 });
 
 
@@ -543,8 +594,8 @@ export const getDocAppInfo = asyncHandler(async (req, res, next) => {
             }
         ]);
 
-        const  user = await userModel.findById(req.params.userId);
-        var userName =  user.username;
+        const user = await userModel.findById(req.params.userId);
+        var userName = user.username;
         return res.status(200).json({ apps, userName });
     } catch (error) {
         return next(error);
