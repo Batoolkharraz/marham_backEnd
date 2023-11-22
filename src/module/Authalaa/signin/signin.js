@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export const signin = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 let role;
   try {
-    const user = await usermodel.findOne({ username });
+    const user = await usermodel.findOne({email });
 
     if (!user) {
       // User not found
