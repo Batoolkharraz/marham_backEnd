@@ -1,10 +1,10 @@
 
 import mongoose, { Schema, model, Types } from 'mongoose';
-const bookedSchema = new Schema({
-    bookedBy: { type: Types.ObjectId, ref: 'User', required: true },
+const appointmentSchema = new Schema({
+    bookedFor: { type: Types.ObjectId, ref: 'Doctor', required: true },
     bookInfo:[{
         bookId: { type: Types.ObjectId, ref: 'Schedule', required: true },
-        doctorId: { type: Types.ObjectId, ref: 'Doctor', required: true },
+        userId: { type: Types.ObjectId, ref: 'User', required: true },
         is_attend: { type: Boolean, default: false },
         is_canceled: { type: Boolean, default: false },
     }],
@@ -13,5 +13,5 @@ const bookedSchema = new Schema({
         timestamps: true
     })
 
-const bookedModel = mongoose.models.Booked || model('Booked', bookedSchema);
-export default bookedModel;
+const appointmentModel = mongoose.models.Appointment || model('Appointment', appointmentSchema);
+export default appointmentModel;
