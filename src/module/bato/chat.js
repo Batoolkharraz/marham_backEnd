@@ -1,4 +1,5 @@
-import usermodel from '../Authalaa/DB/Usermodel.js';
+
+import userModel from './../Authalaa/DB/Usermodel.js';
 export const getusername = async (req, res) => {
     const { email } = req.body;
     
