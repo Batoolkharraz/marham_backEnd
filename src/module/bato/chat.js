@@ -1,10 +1,9 @@
-
 import userModel from './../Authalaa/DB/Usermodel.js';
 export const getusername = async (req, res) => {
     const { email } = req.body;
     
     try {
-        const user = await usermodel.findOne({ email: email });
+        const user = await userModel.findOne({ email: email });
         return res.json(user.username);
     }
     catch (error) {
