@@ -321,6 +321,59 @@ export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ canceledAppInfo: attendAppInfoList });
 });
 
+export const getTodayAppByUser = asyncHandler(async (req, res, next) => {
+    const docId = req.params.userId;
+
+    const today = new Date(); // Get today's date
+
+    const allApps = await bookedModel.find({
+        bookedBy: docId
+    });
+
+    if (!allApps || allApps.length === 0) {
+        return next(new Error('Appointments not found'));
+    }
+
+    let notAttendNotCanceledAppInfoList = [];
+
+    const formattedToday = format(today, 'yyyy/MM/dd');
+    await Promise.all(
+        allApps.map(async (app) => {
+            const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
+            for (let bookInfo of filteredBookInfo) {
+                const schedule = await scheduleModel.findOne({
+                    'scheduleByDay.timeSlots._id': bookInfo.bookId,
+                });
+
+                if (schedule) {
+                    for (const slot of schedule.scheduleByDay) {
+                        for (const slotTime of slot.timeSlots) {
+                            if (slotTime._id.equals(bookInfo.bookId)) {
+                                if (formattedToday.localeCompare(slot.date) === 0) {
+                                    notAttendNotCanceledAppInfoList.push(bookInfo);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        })
+    );
+
+
+    // return the new list
+    if (notAttendNotCanceledAppInfoList.length === 0) {
+        return next(new Error('Appointments where not attended and not canceled not found for today'));
+    }
+
+    return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
+});
+
+
+
 export const appCancel = asyncHandler(async (req, res, next) => {
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
 

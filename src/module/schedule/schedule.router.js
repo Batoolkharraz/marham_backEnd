@@ -13,6 +13,7 @@ router.post('/:userId/:bookedId/:docId',scheduleCont.booking);
 router.get('/byUser/all/:userId',scheduleCont.getAppByUser);
 router.get('/byUser/cancel/:userId',scheduleCont.getCancelAppByUser);
 router.get('/byUser/done/:userId',scheduleCont.getDoneAppByUser);
+router.get('/byUser/today/:userId',scheduleCont.getTodayAppByUser);
 
 router.patch('/cancel/:userId/:bookId/:docId',scheduleCont.appCancel);
 router.patch('/done/:userId/:bookId/:docId',scheduleCont.appDone);
