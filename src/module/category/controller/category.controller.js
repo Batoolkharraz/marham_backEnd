@@ -20,9 +20,9 @@ export const createCategory=asyncHandler(async (req,res,next)=>{
 
 export const updateCategory=asyncHandler(async (req,res,next)=>{
 
-    const name=req.body.name;
+    const id=req.params.id;
 
-    const category= await categoryModel.findOne({name});
+    const category= await categoryModel.findById(id);
 
     if(!category){
         return next (new Error ("invalid category name"));
@@ -67,8 +67,8 @@ export const getCategory=asyncHandler(async (req,res,next)=>{
 })
 
 export const deleteCategory=asyncHandler(async (req,res,next)=>{
-    const name=req.body.name;
-    const category= await categoryModel.findOne({name});
+    const id=req.params.id;
+    const category= await categoryModel.findById(id);
 
     if(!category){
         return next(new Error("category not found"));

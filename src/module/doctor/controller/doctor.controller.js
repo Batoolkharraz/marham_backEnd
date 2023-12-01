@@ -104,3 +104,13 @@ export const getDoctorByCat=asyncHandler(async (req,res,next)=>{
     return res.status(200).json({doctors})
 
 })
+
+
+export const getDoctorBySearch=asyncHandler(async (req,res,next)=>{
+    //k mi9const categories =req.body
+
+    const doctors= await doctorModel.find();
+
+    return res.status(200).json({doctors})
+
+})

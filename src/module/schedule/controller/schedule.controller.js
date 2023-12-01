@@ -509,6 +509,7 @@ export const appDone = asyncHandler(async (req, res, next) => {
 
 
 export const getAppByDoctor = asyncHandler(async (req, res, next) => {
+    const todatApp=getTodayAppByDoctor;
     const docId = req.params.docId;
 
     const allApps = await appointmentModel.find({ bookedFor: docId });
