@@ -33,9 +33,6 @@ const doctorSchema = new Schema ({
         type:String,
         required:true,
     },
-    rate:{
-        type:Number
-    },
     categoryId:{type:Types.ObjectId,ref:'Category',required:true},
 },
 {
