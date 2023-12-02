@@ -8,10 +8,9 @@ import mongoose, { Schema, model, Types } from 'mongoose';
 import { format } from 'date-fns';
 import { startOfDay, endOfDay } from 'date-fns';
 
-
 export const createSchedule = asyncHandler(async (req, res, next) => {
-
     const { date, startTime, endTime, duration } = req.body;
+
     // Parse startTime and endTime to Date objects
     // Combine date and time to create Date objects
     const startDate = new Date(date + ' ' + startTime);
@@ -32,7 +31,6 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
 
         // Add the formatted time to the time slots array
         timeSlots.push({ time: formattedTime, is_booked: false });
-
 
         // Increment the current time by the duration in minutes
         currentTime.setMinutes(currentTime.getMinutes() + duration);
@@ -62,76 +60,44 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
                 startTime: startTime,
                 endTime: endTime,
                 date: date,
-                timeSlots: timeSlots,
+                timeSlots: timeSlots, // Fixed property name
             });
         }
 
         await existingSchedule.save();
         return res.status(201).json({ existingSchedule });
+    } else {
+        const schedule = await scheduleModel.findOne({ writtenBy: req.params.docId });
 
-    }
-    const schedule = await scheduleModel.findOne({ writtenBy: req.params.docId });
-    if (schedule) {
-        //add the new data to the scheduleByDay
-        schedule.scheduleByDay.push({
-            duration: duration,
-            startTime: startTime,
-            endTime: endTime,
-            date: date,
-            timeSlotstime: timeSlots,
-        });
-
-        // Save the updated doctor's schedule
-        await schedule.save();
-
-        return res.status(201).json({ schedule });
-
-    }
-    else {
-        const newSchedule = await scheduleModel.create({
-            writtenBy: req.params.docId,
-            scheduleByDay: [{
+        if (schedule) {
+            // Add the new data to the scheduleByDay
+            schedule.scheduleByDay.push({
                 duration: duration,
                 startTime: startTime,
                 endTime: endTime,
                 date: date,
-                timeSlots: timeSlots
-            }]
-        })
+                timeSlots: timeSlots, // Fixed property name
+            });
 
-        return res.status(201).json({ newSchedule });
-    }
+            // Save the updated doctor's schedule
+            await schedule.save();
+            return res.status(201).json({ schedule });
+        } else {
+            const newSchedule = await scheduleModel.create({
+                writtenBy: req.params.docId,
+                scheduleByDay: [{
+                    duration: duration,
+                    startTime: startTime,
+                    endTime: endTime,
+                    date: date,
+                    timeSlots: timeSlots, // Fixed property name
+                }]
+            });
 
-});
-
-/*
-export const getSchedule = asyncHandler(async (req, res, next) => {
-    const docId = req.params.docId;
-
-    // Get today's date in the required format
-    const today = new Date();
-    const formattedToday = format(today, 'yyyy/MM/dd');
-
-    // Find schedules for today and onwards
-    const schedules = await scheduleModel.find({
-        writtenBy: docId
-    });
-
-    for(const schedule of schedules){
-        for(const scheduleByDay of schedule.scheduleByDay){
-            if(formattedToday.localeCompare(scheduleByDay.date) === -1){
-                console.log(scheduleByDay.date);
-            }
+            return res.status(201).json({ newSchedule });
         }
     }
-
-    if (!schedules || schedules.length === 0) {
-        return next(new Error(`Schedules not found for today and onwards`));
-    }
-
-    return res.status(200).json({ schedules });
 });
-*/
 
 export const getSchedule = asyncHandler(async (req, res, next) => {
     const docId = req.params.docId;
@@ -552,22 +518,49 @@ export const appDone = asyncHandler(async (req, res, next) => {
 export const getAppByDoctor = asyncHandler(async (req, res, next) => {
     const docId = req.params.docId;
 
-    const allApps = await appointmentModel.find({ bookedFor: docId });
+    const today = new Date(); // Get today's date
+
+    const allApps = await appointmentModel.find({
+        bookedFor: docId
+    });
 
     if (!allApps || allApps.length === 0) {
         return next(new Error('Appointments not found'));
     }
 
-    const notAttendNotCanceledAppInfoList = allApps.reduce((result, app) => {
-        const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
-        if (filteredBookInfo.length > 0) {
-            result.push(filteredBookInfo);
-        }
-        return result;
-    }, []);
+    let notAttendNotCanceledAppInfoList = [];
 
+    const formattedToday = format(today, 'yyyy/MM/dd');
+    await Promise.all(
+        allApps.map(async (app) => {
+            const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
+            for (let bookInfo of filteredBookInfo) {
+                const schedule = await scheduleModel.findOne({
+                    'scheduleByDay.timeSlots._id': bookInfo.bookId,
+                });
+
+                if (schedule) {
+                    for (const slot of schedule.scheduleByDay) {
+                        for (const slotTime of slot.timeSlots) {
+                            if (slotTime._id.equals(bookInfo.bookId)) {
+                                if (formattedToday.localeCompare(slot.date) === -1 ) {
+                                    notAttendNotCanceledAppInfoList.push(bookInfo);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        })
+    );
+
+
+    // return the new list
     if (notAttendNotCanceledAppInfoList.length === 0) {
-        return next(new Error('Appointments where not attended and not canceled not found'));
+        return next(new Error('Appointments where not attended and not canceled not found '));
     }
 
     return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
