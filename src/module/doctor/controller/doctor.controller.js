@@ -4,6 +4,7 @@ import cloudinary from "../../../Services/cloudinary.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import { hash } from "../../../Services/hashAndCompare.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
+import categoryModel from "../../../../DB/model/category.model.js";
 
 export const createDoctor = asyncHandler(async (req, res, next) => {
 
