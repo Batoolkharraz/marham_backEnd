@@ -5,8 +5,8 @@ import appointmentModel from "../../../../DB/model/docApp.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import mongoose, { Schema, model, Types } from 'mongoose';
-import { parseISO, format } from 'date-fns';
-import isToday from 'date-fns/isToday/index.js';
+import { format } from 'date-fns';
+import { startOfDay, endOfDay } from 'date-fns';
 
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
@@ -104,15 +104,61 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
 
 });
 
+/*
 export const getSchedule = asyncHandler(async (req, res, next) => {
-    const schedules = await scheduleModel.find({ writtenBy: req.params.docId });
-    if (!schedules) {
-        return next(new Error(`schedules not found `));
+    const docId = req.params.docId;
+
+    // Get today's date in the required format
+    const today = new Date();
+    const formattedToday = format(today, 'yyyy/MM/dd');
+
+    // Find schedules for today and onwards
+    const schedules = await scheduleModel.find({
+        writtenBy: docId
+    });
+
+    for(const schedule of schedules){
+        for(const scheduleByDay of schedule.scheduleByDay){
+            if(formattedToday.localeCompare(scheduleByDay.date) === -1){
+                console.log(scheduleByDay.date);
+            }
+        }
     }
+
+    if (!schedules || schedules.length === 0) {
+        return next(new Error(`Schedules not found for today and onwards`));
+    }
+
     return res.status(200).json({ schedules });
 });
+*/
 
+export const getSchedule = asyncHandler(async (req, res, next) => {
+    const docId = req.params.docId;
 
+    // Get today's date in the required format
+    const today = new Date();
+    const formattedToday = format(today, 'yyyy/MM/dd');
+
+    // Find schedules for today and onwards
+    const schedules = await scheduleModel.findOneAndUpdate(
+        {
+            writtenBy: docId
+        },
+        {
+            $pull: {
+                'scheduleByDay': { date: { $lt: formattedToday } }
+            }
+        },
+        { new: true } // To get the updated document
+    );
+
+    if (!schedules) {
+        return next(new Error(`Schedules not found for today and onwards`));
+    }
+
+    return res.status(200).json({ schedules });
+});
 
 export const getApp = asyncHandler(async (req, res, next) => {
     try {
@@ -137,7 +183,6 @@ export const getApp = asyncHandler(async (req, res, next) => {
         return next(error);
     }
 });
-
 
 export const booking = asyncHandler(async (req, res, next) => {
     const bookedId = req.params.bookedId;
@@ -372,8 +417,6 @@ export const getTodayAppByUser = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
 });
 
-
-
 export const appCancel = asyncHandler(async (req, res, next) => {
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
 
@@ -506,10 +549,7 @@ export const appDone = asyncHandler(async (req, res, next) => {
     return res.status(200).json('success');
 });
 
-
-
 export const getAppByDoctor = asyncHandler(async (req, res, next) => {
-    const todatApp=getTodayAppByDoctor;
     const docId = req.params.docId;
 
     const allApps = await appointmentModel.find({ bookedFor: docId });
@@ -630,7 +670,6 @@ export const getTodayAppByDoctor = asyncHandler(async (req, res, next) => {
 
     return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
 });
-
 
 export const getDocAppInfo = asyncHandler(async (req, res, next) => {
     try {
