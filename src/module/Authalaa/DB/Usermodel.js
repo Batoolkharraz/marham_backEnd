@@ -27,6 +27,9 @@ const userSchema = new Schema({
         default:'user',
         enum:['user','admin','doctor']
     },
+    address:{
+        type:String,
+    }
 
 },{
     timestamps:true

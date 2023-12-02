@@ -14,6 +14,7 @@ router.post('/',fileUpload(fileValidation.image).single('image'),doctorCont.crea
 router.patch('/update',fileUpload(fileValidation.image).single('image'),doctorCont.updateDoctor)
 router.get('/',doctorCont.getAllDoctor);
 router.get('/:doctorId',doctorCont.getDoctor);
+router.get('/Usersearch/:userId',doctorCont.getDoctorByUserSearch);
 router.get('/doctorByCategory/:categoryId',doctorCont.getDoctorByCat);
 router.delete('/',doctorCont.deleteDoctor);
 export default router;
