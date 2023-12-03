@@ -50,7 +50,7 @@ export const createSearchList = asyncHandler(async (req, res, next) => {
     } catch (error) {
         // Handle errors
         console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message:error.body });
     }
 });
 
