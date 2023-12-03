@@ -4,7 +4,6 @@ import searchModel from "../../../../DB/model/search.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import { hash } from "../../../Services/hashAndCompare.js";
 
-
 export const createSearchList = asyncHandler(async (req, res, next) => {
     const userId = req.params.id;
 
@@ -14,9 +13,19 @@ export const createSearchList = asyncHandler(async (req, res, next) => {
 
         if (existingSearch) {
             // Document with userId exists, update the searchList
-            existingSearch.searchList.push({
-                categoryList: req.body.categoryList, // Replace with your actual request body property
-                addressList: req.body.addressList, // Replace with your actual request body property
+
+            // Add new categories that don't exist in the current list
+            req.body.categoryList.forEach(category => {
+                if (!existingSearch.searchList[0].categoryList.includes(category)) {
+                    existingSearch.searchList[0].categoryList.push(category);
+                }
+            });
+
+            // Add new addresses that don't exist in the current list
+            req.body.addressList.forEach(address => {
+                if (!existingSearch.searchList[0].addressList.includes(address)) {
+                    existingSearch.searchList[0].addressList.push(address);
+                }
             });
 
             // Save the updated document

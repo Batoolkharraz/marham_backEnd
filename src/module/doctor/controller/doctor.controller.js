@@ -115,9 +115,11 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
     const doctorSetCat = new Set();
     const doctorSetAdd = new Set();
     if (search) {
+        console.log(search);
         for (const searchList of search.searchList) {
             for (const categoryList of searchList.categoryList) {
                 const categoryId = categoryList._id;
+                console.log(categoryId);
                 if (!categoryIdSet.has(categoryId)) {
                     categoryIdSet.add(categoryId);
                 }
