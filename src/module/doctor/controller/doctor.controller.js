@@ -167,7 +167,7 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
                 }
             }
             const uniqueDoctor = Array.from(uniqueDoctors).map((doctorString) => JSON.parse(doctorString));
-            const limitedDoctors = uniqueDoctor.slice(0, 3);
+            const limitedDoctors = uniqueDoctor.slice(0, 5);
             return res.status(200).json({ doctors: limitedDoctors });
         }
 
