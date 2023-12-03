@@ -158,7 +158,7 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
         const uniqueDoctorArray = Array.from(uniqueDoctors).map((doctorString) => JSON.parse(doctorString));
         if (uniqueDoctorArray.length < 5) {
             const user = await userModel.findById(userId);
-            const doctors = await doctorModel.find({ address: "home" });
+            const doctors = await doctorModel.find({ address: "Nablus" });
             for (const doctor of doctors) {
                 const doctorString = JSON.stringify(doctor);
 
@@ -175,7 +175,7 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
     }
     else {
         const user = await userModel.findById(userId);
-        const doctors = await doctorModel.find({ address: "home" }).limit(5);
+        const doctors = await doctorModel.find({ address: "Nablus" }).limit(5);
         return res.status(200).json({ doctors });
     }
 
