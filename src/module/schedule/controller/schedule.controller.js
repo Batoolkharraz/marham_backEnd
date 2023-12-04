@@ -5,7 +5,7 @@ import appointmentModel from "../../../../DB/model/docApp.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import mongoose, { Schema, model, Types } from 'mongoose';
-import { format } from 'date-fns';
+import { format ,parse } from 'date-fns';
 import { startOfDay, endOfDay } from 'date-fns';
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
@@ -106,18 +106,23 @@ export const getSchedule = asyncHandler(async (req, res, next) => {
     const today = new Date();
     const formattedToday = format(today, 'yyyy/MM/dd');
 
-    // Find schedules for today and onwards
-    const schedules = await scheduleModel.findOneAndUpdate(
+    // Find schedules with 'scheduleByDay' where the date is greater than or equal to today
+    const schedules = await scheduleModel.findOne(
         {
-            writtenBy: docId
+            writtenBy: docId,
+            'scheduleByDay.date': { $gte: formattedToday }
         },
-        {
-            $pull: {
-                'scheduleByDay': { date: { $lt: formattedToday } }
-            }
-        },
-        { new: true } // To get the updated document
+        // Exclude schedules with 'scheduleByDay' where the date is less than today
     );
+
+    if (schedules) {
+        schedules.scheduleByDay = schedules.scheduleByDay.filter((slot) => {
+            slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
+            return formattedToday.localeCompare(slot.date) !== 1;
+        });
+    
+    }
+
 
     if (!schedules) {
         return next(new Error(`Schedules not found for today and onwards`));
@@ -543,7 +548,7 @@ export const getAppByDoctor = asyncHandler(async (req, res, next) => {
                     for (const slot of schedule.scheduleByDay) {
                         for (const slotTime of slot.timeSlots) {
                             if (slotTime._id.equals(bookInfo.bookId)) {
-                                if (formattedToday.localeCompare(slot.date) === -1 ) {
+                                if (formattedToday.localeCompare(slot.date) === -1) {
                                     notAttendNotCanceledAppInfoList.push(bookInfo);
                                 }
 
