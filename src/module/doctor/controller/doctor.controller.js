@@ -173,7 +173,7 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
             return res.status(200).json({ doctors: limitedDoctors });
         }
 
-        return res.status(200).json({ uniqueDoctorArray });
+        return res.status(200).json({ doctors:uniqueDoctorArray });
     }
     else {
         const user = await userModel.findById(userId);
