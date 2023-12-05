@@ -267,24 +267,52 @@ export const booking = asyncHandler(async (req, res, next) => {
 });
 
 export const getAppByUser = asyncHandler(async (req, res, next) => {
-    const userId = req.params.userId;
+    const docId = req.params.userId;
 
-    const allApps = await bookedModel.find({ bookedBy: userId });
+    const today = new Date(); // Get today's date
+
+    const allApps = await bookedModel.find({
+        bookedBy: docId
+    });
 
     if (!allApps || allApps.length === 0) {
         return next(new Error('Appointments not found'));
     }
 
-    const notAttendNotCanceledAppInfoList = allApps.reduce((result, app) => {
-        const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
-        if (filteredBookInfo.length > 0) {
-            result.push(filteredBookInfo);
-        }
-        return result;
-    }, []);
+    let notAttendNotCanceledAppInfoList = [];
 
+    const formattedToday = format(today, 'yyyy/MM/dd');
+    await Promise.all(
+        allApps.map(async (app) => {
+            const filteredBookInfo = app.bookInfo.filter(info => !info.is_attend && !info.is_canceled);
+            for (let bookInfo of filteredBookInfo) {
+                const schedule = await scheduleModel.findOne({
+                    'scheduleByDay.timeSlots._id': bookInfo.bookId,
+                });
+
+                if (schedule) {
+                    for (const slot of schedule.scheduleByDay) {
+                        for (const slotTime of slot.timeSlots) {
+                            if (slotTime._id.equals(bookInfo.bookId)) {
+                                slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
+                                if (formattedToday.localeCompare(slot.date) === -1) {
+                                    notAttendNotCanceledAppInfoList.push(bookInfo);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        })
+    );
+
+
+    // return the new list
     if (notAttendNotCanceledAppInfoList.length === 0) {
-        return next(new Error('Appointments where not attended and not canceled not found'));
+        return next(new Error('Appointments where not attended and not canceled not found for today'));
     }
 
     return res.status(200).json({ AppsInfo: notAttendNotCanceledAppInfoList });
@@ -365,6 +393,7 @@ export const getTodayAppByUser = asyncHandler(async (req, res, next) => {
                     for (const slot of schedule.scheduleByDay) {
                         for (const slotTime of slot.timeSlots) {
                             if (slotTime._id.equals(bookInfo.bookId)) {
+                                slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
                                 if (formattedToday.localeCompare(slot.date) === 0) {
                                     notAttendNotCanceledAppInfoList.push(bookInfo);
                                 }
@@ -548,6 +577,7 @@ export const getAppByDoctor = asyncHandler(async (req, res, next) => {
                     for (const slot of schedule.scheduleByDay) {
                         for (const slotTime of slot.timeSlots) {
                             if (slotTime._id.equals(bookInfo.bookId)) {
+                                slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
                                 if (formattedToday.localeCompare(slot.date) === -1) {
                                     notAttendNotCanceledAppInfoList.push(bookInfo);
                                 }
@@ -646,6 +676,7 @@ export const getTodayAppByDoctor = asyncHandler(async (req, res, next) => {
                     for (const slot of schedule.scheduleByDay) {
                         for (const slotTime of slot.timeSlots) {
                             if (slotTime._id.equals(bookInfo.bookId)) {
+                                slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
                                 if (formattedToday.localeCompare(slot.date) === 0) {
                                     notAttendNotCanceledAppInfoList.push(bookInfo);
                                 }
