@@ -64,3 +64,10 @@ export const upinfo = async (req, res) => {
         }
     }
 };
+
+export const getAllUser = async (req, res, next) => {
+
+    const users = await userModel.find({role:'user'});
+    return res.status(200).json({ users })
+
+};
