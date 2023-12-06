@@ -15,12 +15,12 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
     let now = new Date();
     req.body.dateFrom = new Date(req.body.dateFrom);
     req.body.dateTo = new Date(req.body.dateTo);
-    if (req.body.dateFrom < now || req.body.dateTo < now) {
+    /*if (req.body.dateFrom < now || req.body.dateTo < now) {
         return next(new Error(`please check the date again`, { cause: 400 }));
-    }
+    }*/
     req.body.dateFrom = req.body.dateFrom.toLocaleDateString();
     req.body.dateTo = req.body.dateTo.toLocaleDateString();
-
+console.log(req.body.dateFrom);
     const prescription = await prescriptionModel.create({
         writtenFor: user._id,
         writtenBy: req.params.docId,
