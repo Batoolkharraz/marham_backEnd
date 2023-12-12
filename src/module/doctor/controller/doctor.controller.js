@@ -83,7 +83,7 @@ export const getAllDoctor = asyncHandler(async (req, res, next) => {
 export const getDoctor = asyncHandler(async (req, res, next) => {
 
     const doctor = await doctorModel.findById(req.params.doctorId);
-    return res.status(200).json({ doctor })
+    return res.status(200).json(doctor);
 
 })
 
