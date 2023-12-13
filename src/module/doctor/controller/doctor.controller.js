@@ -184,10 +184,15 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
 });
 
 export const getDoctorByEmail = asyncHandler(async (req, res, next) => {
-    
     const user = await userModel.findById(req.params.docId);
     const email=user.email;
     const doctor = await doctorModel.findOne({email});
     return res.status(200).json(doctor);
+})
 
+export const getDoctorId = asyncHandler(async (req, res, next) => {
+    const user = await userModel.findById(req.params.docId);
+    const email=user.email;
+    const doctor = await doctorModel.findOne({email});
+    return res.status(200).json(doctor._id);
 })
