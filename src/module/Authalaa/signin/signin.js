@@ -21,7 +21,6 @@ let role;
     }
 
     // If both conditions are met, generate and return the token
-    
     const token = jwt.sign(
       { id: user._id, isLoggedIn: true },
       'blogNode3123',
@@ -29,8 +28,9 @@ let role;
     );
     if(user.role == 'doctor')
   {
-    role='doctor;'
-    return res.json({ message:'success ', token ,role});
+    role='doctor';
+    const email=user.email;
+    return res.json({ message:'success ', token ,role, email});
   }
   else if(user.role == 'user')
   {
