@@ -17,4 +17,5 @@ router.get('/:doctorId',doctorCont.getDoctor);
 router.get('/Usersearch/:userId',doctorCont.getDoctorByUserSearch);
 router.get('/doctorByCategory/:categoryId',doctorCont.getDoctorByCat);
 router.delete('/',doctorCont.deleteDoctor);
+router.get('/find/byEmail',doctorCont.getDoctorByEmail);
 export default router;
