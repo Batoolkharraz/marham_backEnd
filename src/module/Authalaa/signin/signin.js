@@ -29,8 +29,8 @@ let role;
     if(user.role == 'doctor')
   {
     role='doctor';
-    const email=user.email;
-    return res.json({ message:'success ', token ,role, email});
+    const Docemail=user.email;
+    return res.json({ message:'success ', token ,role, Docemail});
   }
   else if(user.role == 'user')
   {
