@@ -186,7 +186,7 @@ export const getDoctorByUserSearch = asyncHandler(async (req, res, next) => {
 export const getDoctorByEmail = asyncHandler(async (req, res, next) => {
     
     const email =req.body.email;
-    console.log(email);
+    return res.status(200).json(email);
     const doctor = await doctorModel.findOne({ email: email });
     return res.status(200).json(doctor);
 
