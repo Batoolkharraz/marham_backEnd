@@ -12,6 +12,12 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
         return next(new Error(`invalid user`, { cause: 400 }));
     }
 
+    
+    const docUser = await userModel.findById(req.params.docId);
+    const docEmail=docUser.email;
+    const doctor = await doctorModel.findOne({docEmail});
+    const docId=doctor._id;
+
     let now = new Date();
     req.body.dateFrom = new Date(req.body.dateFrom);
     req.body.dateTo = new Date(req.body.dateTo);
@@ -20,10 +26,9 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
     }*/
     req.body.dateFrom = req.body.dateFrom.toLocaleDateString();
     req.body.dateTo = req.body.dateTo.toLocaleDateString();
-console.log(req.body.dateFrom);
     const prescription = await prescriptionModel.create({
         writtenFor: user._id,
-        writtenBy: req.params.docId,
+        writtenBy: docId,
         dateFrom:req.body.dateFrom,
         dateTo:req.body.dateTo,
         medicines,
@@ -45,7 +50,8 @@ export const deletePrescription = asyncHandler(async (req, res, next) => {
 
 
 export const getPrescription = asyncHandler(async (req, res, next) => {
-    const prescription = await prescriptionModel.findById( req.params.prescriptionId );
+    const prescription = await prescriptionModel.findById(
+         req.params.prescriptionId );
     if (!prescription) {
         return next(new Error(`this prescription not found `));
     }

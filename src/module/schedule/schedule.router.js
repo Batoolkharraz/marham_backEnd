@@ -9,7 +9,9 @@ router.post('/:docId',scheduleCont.createSchedule);
 router.get('/:docId',scheduleCont.getSchedule);
 
 router.get('/appointment/:bookId/:docId',scheduleCont.getApp);
+
 router.post('/:userId/:bookedId/:docId',scheduleCont.booking);
+
 router.get('/byUser/all/:userId',scheduleCont.getAppByUser);
 router.get('/byUser/cancel/:userId',scheduleCont.getCancelAppByUser);
 router.get('/byUser/done/:userId',scheduleCont.getDoneAppByUser);

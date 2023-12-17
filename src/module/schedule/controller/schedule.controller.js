@@ -654,7 +654,11 @@ export const getDoneAppByDoctor = asyncHandler(async (req, res, next) => {
 });
 
 export const getTodayAppByDoctor = asyncHandler(async (req, res, next) => {
-    const docId = req.params.docId;
+    
+    const user = await userModel.findById(req.params.docId);
+    const email=user.email;
+    const doctor = await doctorModel.findOne({email});
+    const docId = doctor._id;
 
     const today = new Date(); // Get today's date
 
