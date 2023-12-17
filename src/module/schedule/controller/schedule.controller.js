@@ -11,6 +11,11 @@ import { startOfDay, endOfDay } from 'date-fns';
 export const createSchedule = asyncHandler(async (req, res, next) => {
     const { date, startTime, endTime, duration } = req.body;
 
+    
+    const user = await userModel.findById(req.params.docId);
+    const email=user.email;
+    const doctor = await doctorModel.findOne({email});
+    const docId=doctor._id;
     // Parse startTime and endTime to Date objects
     // Combine date and time to create Date objects
     const startDate = new Date(date + ' ' + startTime);
@@ -40,7 +45,7 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
     }
 
     const existingSchedule = await scheduleModel.findOne({
-        writtenBy: req.params.docId,
+        writtenBy: docId,
         'scheduleByDay.date': date,
     });
 
@@ -67,7 +72,7 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
         await existingSchedule.save();
         return res.status(201).json({ existingSchedule });
     } else {
-        const schedule = await scheduleModel.findOne({ writtenBy: req.params.docId });
+        const schedule = await scheduleModel.findOne({ writtenBy: docId });
 
         if (schedule) {
             // Add the new data to the scheduleByDay
@@ -84,7 +89,7 @@ export const createSchedule = asyncHandler(async (req, res, next) => {
             return res.status(201).json({ schedule });
         } else {
             const newSchedule = await scheduleModel.create({
-                writtenBy: req.params.docId,
+                writtenBy: docId,
                 scheduleByDay: [{
                     duration: duration,
                     startTime: startTime,
