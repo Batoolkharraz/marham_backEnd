@@ -6,6 +6,8 @@ import prescriptionRouter from './prescription/prescription.router.js';
 import scheduleRouter from './schedule/schedule.router.js';
 import searchRouter from './search/search.router.js';
 import adminRouter from './admin/admin.router.js';
+import priceRouter from './price/price.router.js';
+import paymentRouter from './payment/payment.router.js';
 import { globalErrorHandel } from '../Services/errorHandling.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -28,6 +30,8 @@ const initApp=(app,express)=>{
     app.use('/prescription',prescriptionRouter);
     app.use('/schedule',scheduleRouter);
     app.use('/search',searchRouter);
+    app.use('/price',priceRouter);
+    app.use('/payment',paymentRouter);
     app.use('/admin',adminRouter);
     app.use('*',(req,res)=>{
         return res.json({message:"page not found"});
