@@ -15,7 +15,7 @@ export const createPrescription = asyncHandler(async (req, res, next) => {
     
     const docUser = await userModel.findById(req.params.docId);
     const docEmail=docUser.email;
-    const doctor = await doctorModel.findOne({docEmail});
+    const doctor = await doctorModel.findOne({email:docEmail});
     const docId=doctor._id;
 
     let now = new Date();
