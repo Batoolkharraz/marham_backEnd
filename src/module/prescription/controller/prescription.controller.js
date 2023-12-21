@@ -1,6 +1,6 @@
 import prescriptionModel from "../../../../DB/model/prescription.model.js";
 import { asyncHandler } from "../../../Services/errorHandling.js";
-import medicineModel from "../../../../DB/model/medicine.model.js";
+import doctorModel from "../../../../DB/model/doctor.model.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 
 
