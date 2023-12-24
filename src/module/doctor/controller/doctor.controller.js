@@ -196,3 +196,10 @@ export const getDoctorId = asyncHandler(async (req, res, next) => {
     const doctor = await doctorModel.findOne({email});
     return res.status(200).json(doctor._id);
 })
+
+
+export const getDocByEmail = asyncHandler(async (req, res, next) => {
+    
+    const doctor = await doctorModel.findOne({email:req.body.email});
+    return res.status(200).json(doctor);
+})
