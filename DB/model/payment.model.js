@@ -4,6 +4,10 @@ const paymentSchema = new Schema({
     userId: { type: Types.ObjectId, ref: 'User', required: true },
     bookId: { type: Types.ObjectId, ref: 'Doctor', required: true },
     is_paied: { type: Boolean, default: false },
+    payMethod: { 
+        type: String,
+        default:'card',
+        enum:['card','paypal'], },
 },
     {
         timestamps: true
