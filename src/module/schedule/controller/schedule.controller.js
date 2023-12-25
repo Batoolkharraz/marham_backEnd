@@ -190,8 +190,9 @@ export const booking = asyncHandler(async (req, res, next) => {
         }
         if (isAppExistsCanceled) {
             for (const app of existingBooking.bookInfo) {
-                if (app.bookId = bookedId) {
+                if (app.bookId == bookedId) {
                     app.is_canceled = false;
+                    console.log(app);
                 }
             }
             // Save the updated booking entry
@@ -290,7 +291,6 @@ export const booking = asyncHandler(async (req, res, next) => {
     // Return success message
     return res.status(200).json('success');
 });
-
 
 export const getAppByUser = asyncHandler(async (req, res, next) => {
     const docId = req.params.userId;
