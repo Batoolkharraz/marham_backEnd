@@ -6,7 +6,7 @@ import { asyncHandler } from "../../../Services/errorHandling.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import mongoose, { Schema, model, Types } from 'mongoose';
 import { format ,parse } from 'date-fns';
-import { startOfDay, endOfDay } from 'date-fns';
+import { sendEmailCancelAppDoctor, sendEmailCancelAppUser } from "../../SentEmail/sentmail.js";
 
 export const createSchedule = asyncHandler(async (req, res, next) => {
     const { date, startTime, endTime, duration } = req.body;
@@ -189,7 +189,19 @@ export const booking = asyncHandler(async (req, res, next) => {
 
             // Save the updated booking entry
             booked = await existingBooking.save();
-        } else {
+        }if(isAppointmentExists&& isAppointmentExists.is_canceled==true){
+            existingBooking.bookInfo.push({
+                bookId: bookedId,
+                doctorId: req.params.docId,  // Update with the actual field from the request body
+                is_attend: false,
+                is_canceled: false,  // Set to the desired initial value
+            });
+
+            // Save the updated booking entry
+            booked = await existingBooking.save();
+
+        }
+         else {
             return res.status(200).json('Appointment already exists');
         }
     } else {
@@ -423,6 +435,7 @@ export const getTodayAppByUser = asyncHandler(async (req, res, next) => {
 });
 
 export const appCancel = asyncHandler(async (req, res, next) => {
+    const doctor =await userModel.findById(req.params.docId);
     const apps = await bookedModel.find({ bookedBy: req.params.userId });
 
     if (!apps || apps.length === 0) {
@@ -484,12 +497,15 @@ export const appCancel = asyncHandler(async (req, res, next) => {
 
                     // Save the updated bookedModel
                     await appointmentModel.updateOne({ bookedFor: req.params.docId }, { bookInfo: DocappInfo });
+                    
+                    sendEmailCancelAppUser(doctor.name,doctor.email);
 
                     return res.status(200).json('success');
                 }
             }
 
             return next(new Error('Appointment not found'));
+            
         }
     }
 
@@ -728,4 +744,82 @@ export const getDocAppInfo = asyncHandler(async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
+});
+
+export const appCancelByDoctor = asyncHandler(async (req, res, next) => {
+    const user =await userModel.findById(req.params.userId);
+    const apps = await bookedModel.find({ bookedBy: req.params.userId });
+
+    if (!apps || apps.length === 0) {
+        return next(new Error('Schedules not found'));
+    }
+
+    // Extract appInfo from each document in the apps array
+    const appInfoList = apps.map(app => app.bookInfo);
+
+    // Loop through each appInfo to find and update the specified bookId
+    for (const appInfo of appInfoList) {
+        const indexToUpdate = appInfo.findIndex(app => app.bookId.toString() === req.params.bookId);
+
+        if (indexToUpdate !== -1) {
+            // Update the is_canceled field to true
+            appInfo[indexToUpdate].is_canceled = true;
+
+            // Save the updated bookedModel
+            await bookedModel.updateOne({ bookedBy: req.params.userId }, { bookInfo: appInfo });
+
+            // Find the corresponding schedule and update is_booked to false
+            const schedule = await scheduleModel.findOneAndUpdate(
+                {
+                    'scheduleByDay.timeSlots._id': req.params.bookId,
+                },
+                {
+                    $set: {
+                        'scheduleByDay.$[].timeSlots.$[slot].is_booked': false,
+                    },
+                },
+                {
+                    arrayFilters: [
+                        { 'slot._id': req.params.bookId },
+                    ],
+                    new: true,
+                }
+            );
+
+            if (!schedule) {
+                return next(new Error('Schedule not found'));
+            }
+            // Find the corresponding appointment and update is_canceled to true
+            const appsDoc = await appointmentModel.find({ bookedFor: req.params.docId });
+
+            if (!appsDoc || appsDoc.length === 0) {
+                return next(new Error('Schedules not found'));
+            }
+
+            // Extract appInfo from each document in the apps array
+            const DocappInfoList = appsDoc.map(Docapp => Docapp.bookInfo);
+
+            // Loop through each appInfo to find and update the specified bookId
+            for (const DocappInfo of DocappInfoList) {
+                const DocindexToUpdate = DocappInfo.findIndex(Docapp => Docapp.bookId.toString() === req.params.bookId);
+
+                if (DocindexToUpdate !== -1) {
+                    // Update the is_canceled field to true
+                    DocappInfo[DocindexToUpdate].is_canceled = true;
+
+                    // Save the updated bookedModel
+                    await appointmentModel.updateOne({ bookedFor: req.params.docId }, { bookInfo: DocappInfo });
+                    
+                    sendEmailCancelAppDoctor(user.username,user.email);
+                    
+                    return res.status(200).json('success');
+                }
+            }
+
+            return next(new Error('Appointment not found'));
+            
+        }
+    }
+
+    return next(new Error('Appointment not found'));
 });
