@@ -192,7 +192,6 @@ export const booking = asyncHandler(async (req, res, next) => {
             for (const app of existingBooking.bookInfo) {
                 if (app.bookId == bookedId) {
                     app.is_canceled = false;
-                    console.log(app);
                 }
             }
             // Save the updated booking entry
@@ -353,20 +352,40 @@ export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
         return next(new Error('Appointments not found'));
     }
 
-    const canceledAppInfoList = allApps.reduce((result, app) => {
-        const filteredBookInfo = app.bookInfo.filter(info => info.is_canceled);
-        if (filteredBookInfo.length > 0) {
-            result.push(filteredBookInfo);
-        }
-        return result;
-    }, []);
+    let notAttendNotCanceledAppInfoList = [];
+    const today = new Date(); // Get today's date
+    const formattedToday = format(today, 'yyyy/MM/dd');
 
-    if (canceledAppInfoList.length === 0) {
+    for (const app of allApps) {
+        const filteredBookInfo = app.bookInfo.filter(info => info.is_canceled);
+        for (const bookInfo of filteredBookInfo) {
+            const schedule = await scheduleModel.findOne({
+                'scheduleByDay.timeSlots._id': bookInfo.bookId,
+            });
+
+            if (schedule) {
+                for (const slot of schedule.scheduleByDay) {
+                    for (const slotTime of slot.timeSlots) {
+                        if (slotTime._id.equals(bookInfo.bookId)) {
+                            slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
+
+                            if (formattedToday.localeCompare(slot.date) === 0 || formattedToday.localeCompare(slot.date) === -1) {
+                                notAttendNotCanceledAppInfoList.push(bookInfo);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (notAttendNotCanceledAppInfoList.length === 0) {
         return next(new Error('Canceled appointments not found'));
     }
 
-    return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
+    return res.status(200).json({ canceledAppInfo: notAttendNotCanceledAppInfoList });
 });
+
 
 export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
@@ -640,20 +659,40 @@ export const getCancelAppByDoctor = asyncHandler(async (req, res, next) => {
         return next(new Error('Appointments not found'));
     }
 
-    const canceledAppInfoList = allApps.reduce((result, app) => {
-        const filteredBookInfo = app.bookInfo.filter(info => info.is_canceled);
-        if (filteredBookInfo.length > 0) {
-            result.push(filteredBookInfo);
-        }
-        return result;
-    }, []);
+    const notAttendNotCanceledAppInfoList = [];
 
-    if (canceledAppInfoList.length === 0) {
+    for (const app of allApps) {
+        const filteredBookInfo = app.bookInfo.filter(info => info.is_canceled);
+
+        for (const bookInfo of filteredBookInfo) {
+            const schedule = await scheduleModel.findOne({
+                'scheduleByDay.timeSlots._id': bookInfo.bookId,
+            });
+
+            if (schedule) {
+                const formattedToday = format(new Date(), 'yyyy/MM/dd');
+
+                for (const slot of schedule.scheduleByDay) {
+                    for (const slotTime of slot.timeSlots) {
+                        if (slotTime._id.equals(bookInfo.bookId)) {
+                            slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
+                            if (formattedToday.localeCompare(slot.date) === -1||formattedToday.localeCompare(slot.date) === 0) {
+                                notAttendNotCanceledAppInfoList.push(bookInfo);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (notAttendNotCanceledAppInfoList.length === 0) {
         return next(new Error('Canceled appointments not found'));
     }
 
-    return res.status(200).json({ canceledAppInfo: canceledAppInfoList });
+    return res.status(200).json({ canceledAppInfo: notAttendNotCanceledAppInfoList });
 });
+
 
 export const getDoneAppByDoctor = asyncHandler(async (req, res, next) => {
     const docId = req.params.docId;
