@@ -24,3 +24,14 @@ export const getUser = async (req, res) => {
         return res.status(500).json({ message: error });
     }
 }
+
+export const getUserByEmail = async (req, res) => {
+    try {
+        const user = await usermodel.findOne({ email:req.body.email });
+        return res.json(user);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error });
+    }
+}

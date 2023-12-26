@@ -17,6 +17,7 @@ export const createPayment = asyncHandler(async (req, res, next) => {
                 userId: req.params.userId,
                 bookId: req.params.bookId,
                 is_paied:true,
+                payMethod:req.body.payMethod
             });
 
             return res.status(201).json({ newpayment });

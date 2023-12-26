@@ -18,6 +18,7 @@ router.get('/byUser/done/:userId',scheduleCont.getDoneAppByUser);
 router.get('/byUser/today/:userId',scheduleCont.getTodayAppByUser);
 
 router.patch('/cancel/:userId/:bookId/:docId',scheduleCont.appCancel);
+router.patch('/cancelByDoc/:userId/:bookId/:docId',scheduleCont.appCancelByDoctor);
 router.patch('/done/:userId/:bookId/:docId',scheduleCont.appDone);
 router.get('/byDoctor/all/:docId',scheduleCont.getAppByDoctor);
 router.get('/byDoctor/cancel/:docId',scheduleCont.getCancelAppByDoctor);
