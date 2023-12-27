@@ -34,3 +34,30 @@ export const getPrice = asyncHandler(async (req, res, next) => {
         });
     return res.status(200).json(price);
 });
+
+
+export const Price = asyncHandler(async (req, res, next) => {
+
+    const doctors = await doctorModel.find();
+    for(const doctor of doctors){
+        const docId=doctor._id;
+        const existingPrice = await priceModel.findOne({
+            doctorId: docId
+        });
+    
+        if (existingPrice) {
+            existingPrice.price=req.body.price;
+            await existingPrice.save();
+        } 
+        else {
+                const newPrice = await priceModel.create({
+                    doctorId:docId,
+                    price:req.body.price
+                });
+    
+        }
+    }
+    
+    return res.status(201).json( 'hh' );
+    
+});

@@ -29,6 +29,7 @@ export const doctorSignUp = asyncHandler(async (req, res, next) => {
         password: Hpassword,
         image: { secure_url, public_id },
         role:'doctor',
+        address: req.body.address,
     };
 
     const user = await userModel.create(userData);

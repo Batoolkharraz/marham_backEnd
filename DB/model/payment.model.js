@@ -8,6 +8,7 @@ const paymentSchema = new Schema({
         type: String,
         default:'card',
         enum:['card','paypal'], },
+        price:{ type:String},
 },
     {
         timestamps: true
