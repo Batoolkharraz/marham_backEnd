@@ -66,16 +66,16 @@ export const getPoint = asyncHandler(async (req, res, next) => {
 export const buyPoint = asyncHandler(async (req, res, next) => {
     var p = 0;
     if (req.body.price == 5) {
-        p += 250;
-    }
-    if (req.body.price == 10) {
         p += 500;
     }
-    if (req.body.price == 20) {
+    if (req.body.price == 10) {
         p += 1000;
     }
+    if (req.body.price == 20) {
+        p += 2000;
+    }
     if (req.body.price == 50) {
-        p += 2500;
+        p += 5000;
     }
     const point = await pointModel.findOne({ userId: req.params.userId });
     if (point) {
