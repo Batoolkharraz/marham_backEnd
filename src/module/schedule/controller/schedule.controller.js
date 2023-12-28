@@ -386,7 +386,6 @@ export const getCancelAppByUser = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ canceledAppInfo: notAttendNotCanceledAppInfoList });
 });
 
-
 export const getDoneAppByUser = asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
 
