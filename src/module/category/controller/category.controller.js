@@ -29,12 +29,6 @@ export const updateCategory=asyncHandler(async (req,res,next)=>{
     }
 
     if(req.body.Nname){
-        if(await categoryModel.findOne({name:req.body.Nname})){
-            return next(new Error(`duplicateed category name `,{cause:409}));
-        }
-        if(category.name==req.body.Nname){
-            return next(new Error(`old name match the new name `,{cause:400}));
-        }
         category.name=req.body.Nname;
     }
 
