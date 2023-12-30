@@ -6,7 +6,7 @@ import { hash } from "../../../Services/hashAndCompare.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import categoryModel from "../../../../DB/model/category.model.js";
 
-export const doctorSignUp = asyncHandler(async (req, res, next) => {
+export const doctorSignUp = asyncHandler(async (req, res) => {
 
     const email = req.body.email;
     if (await doctorModel.findOne({ email })) {
