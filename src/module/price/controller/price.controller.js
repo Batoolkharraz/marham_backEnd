@@ -71,5 +71,12 @@ export const updatePrice = asyncHandler(async (req, res, next) => {
         });
         price.price=req.body.price;
         await price.save();
+        if(!price){
+            
+            const newPrice = await priceModel.create({
+                doctorId:docId,
+                price:req.body.price
+            });
+        }
     return res.status(200).json('success');
 });
