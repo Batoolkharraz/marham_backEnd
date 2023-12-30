@@ -48,9 +48,6 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
     }
 
     if (req.body.name) {
-        if (doctor.name == req.body.name) {
-            return next(new Error(`old name match the new name `, { cause: 400 }));
-        }
         doctor.name = req.body.name;
     }
 
@@ -65,7 +62,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
     }
 
     if (req.body.category) {
-        cat = await categoryModel.findOne({name:req.body.category});
+        const cat = await categoryModel.findOne({name:req.body.category});
         if(cat){
             doctor.categoryId = cat._id;
         }
