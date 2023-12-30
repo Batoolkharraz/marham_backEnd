@@ -5,18 +5,19 @@ import { asyncHandler } from "../../../Services/errorHandling.js";
 import { hash } from "../../../Services/hashAndCompare.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import categoryModel from "../../../../DB/model/category.model.js";
+import priceModel from "../../../../DB/model/price.model.js";
 
 export const doctorSignUp = asyncHandler(async (req, res) => {
 
     const email = req.body.email;
     if (await doctorModel.findOne({ email })) {
-        return 'false2';
+        return res.json('false2');
     }
 
     const category = await categoryModel.findOne({ name: req.body.category });
     console.log(category);
     if (!category) {
-        return 'false1';
+        return res.json('false1');
     }
     const Hpassword = hash(req.body.password);
 
@@ -45,11 +46,10 @@ export const doctorSignUp = asyncHandler(async (req, res) => {
         password: Hpassword,
     });
 
-    const newdoc=await doctorModel.findOne({email:req.body.email});
-    
+     const newdoc=await doctorModel.findOne({email:req.body.email});
     const newPrice = await priceModel.create({
         doctorId:newdoc._id,
-        price:req.body.price
+        price:50
     });
 
     return res.status(201).json('success');
