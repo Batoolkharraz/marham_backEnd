@@ -10,13 +10,13 @@ export const doctorSignUp = asyncHandler(async (req, res, next) => {
 
     const email = req.body.email;
     if (await doctorModel.findOne({ email })) {
-        return next(new Error(`you already have an acount with this email `, { cause: 409 }));
+        return next(new Error(`false2 `, { cause: 409 }));
     }
 
     const category = await categoryModel.findOne({ name: req.body.category });
     console.log(category);
     if (!category) {
-        return next(new Error(`there is no category with this name `, { cause: 409 }));
+        return next(new Error(`false1 `, { cause: 409 }));
     }
     const Hpassword = hash(req.body.password);
 
