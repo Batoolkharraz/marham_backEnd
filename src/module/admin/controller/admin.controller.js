@@ -44,6 +44,14 @@ export const doctorSignUp = asyncHandler(async (req, res, next) => {
         address: req.body.address,
         password: Hpassword,
     });
+
+    const newdoc=await doctorModel.findOne({email:req.body.email});
+    
+    const newPrice = await priceModel.create({
+        doctorId:newdoc._id,
+        price:req.body.price
+    });
+
     return res.status(201).json('success');
 
 })
