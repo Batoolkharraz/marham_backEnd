@@ -7,5 +7,6 @@ const router = Router();
 
 router.post('/:docId',priceCont.createPrice);
 router.get('/:docId',priceCont.getPrice);
+router.patch('/updates/:docId',priceCont.updatePrice);
 
 export default router;

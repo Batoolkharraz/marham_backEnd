@@ -5,6 +5,9 @@ import { asyncHandler } from "../../../Services/errorHandling.js";
 import { hash } from "../../../Services/hashAndCompare.js";
 import userModel from "../../Authalaa/DB/Usermodel.js";
 import categoryModel from "../../../../DB/model/category.model.js";
+import scheduleModel from "../../../../DB/model/schedule.model.js";
+import appointmentModel from "../../../../DB/model/docApp.model.js";
+import bookedModel from "../../../../DB/model/booked.model.js";
 
 export const createDoctor = asyncHandler(async (req, res, next) => {
 
@@ -45,9 +48,6 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
     }
 
     if (req.body.name) {
-        if (doctor.name == req.body.name) {
-            return next(new Error(`old name match the new name `, { cause: 400 }));
-        }
         doctor.name = req.body.name;
     }
 
@@ -59,6 +59,13 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
 
     if (req.body.description) {
         doctor.description = req.body.description;
+    }
+
+    if (req.body.category) {
+        const cat = await categoryModel.findOne({name:req.body.category});
+        if(cat){
+            doctor.categoryId = cat._id;
+        }
     }
 
     if (req.body.phone) {
@@ -95,7 +102,13 @@ export const deleteDoctor = asyncHandler(async (req, res, next) => {
         return next(new Error("doctor not found"));
     }
 
-    await doctorModel.findByIdAndDelete(doctor._id)
+    await doctorModel.findByIdAndDelete(doctor._id);
+    const schedule = await scheduleModel.findOneAndDelete({writtenBy:doctor._id});
+    const app = await appointmentModel.findOneAndDelete({bookedFor:doctor._id});
+    //delete where the doctor id equal doctor._id 
+    const booked = await bookedModel.findOneAndDelete({
+        'bookInfo.doctorId': doctor._id
+    })
     return res.status(200).json({ message: "success" })
 
 })
