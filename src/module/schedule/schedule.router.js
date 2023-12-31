@@ -26,4 +26,8 @@ router.get('/byDoctor/done/:docId',scheduleCont.getDoneAppByDoctor);
 router.get('/doctorAppointment/:bookId/:userId',scheduleCont.getDocAppInfo);
 
 router.get('/byDoctor/today/:docId',scheduleCont.getTodayAppByDoctor);
+
+router.get('/getNumApp/:docId',scheduleCont.getNumApp);
+router.get('/getNumAppMonth/:docId',scheduleCont.getNumAppMonth);
+router.get('/getNumPatient/:docId',scheduleCont.getNumPatient);
 export default router;

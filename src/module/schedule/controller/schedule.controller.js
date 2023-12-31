@@ -177,12 +177,12 @@ export const booking = asyncHandler(async (req, res, next) => {
     const existingBooking = await bookedModel.findOne({ bookedBy: req.params.userId });
     if (existingBooking) {
         // Check if the bookedId already exists in the bookInfo list
-        const isAppointmentExists = existingBooking.bookInfo.some(appointment => 
+        const isAppointmentExists = existingBooking.bookInfo.some(appointment =>
             appointment.bookId.toString() === bookedId && !appointment.is_canceled);
         const isAppExistsCanceled = existingBooking.bookInfo.some(appointment =>
             appointment.bookId.toString() === bookedId && appointment.is_canceled);
-            const isAppExists = existingBooking.bookInfo.some(appointment =>
-                appointment.bookId.toString() === bookedId);
+        const isAppExists = existingBooking.bookInfo.some(appointment =>
+            appointment.bookId.toString() === bookedId);
 
         if (isAppointmentExists) {
             // If the appointment already exists and is not canceled, return a message
@@ -675,7 +675,7 @@ export const getCancelAppByDoctor = asyncHandler(async (req, res, next) => {
                     for (const slotTime of slot.timeSlots) {
                         if (slotTime._id.equals(bookInfo.bookId)) {
                             slot.date = format(parse(slot.date, 'yyyy/MM/dd', new Date()), 'yyyy/MM/dd').replace(/\/(\d)\b/g, '/0$1');
-                            if (formattedToday.localeCompare(slot.date) === -1||formattedToday.localeCompare(slot.date) === 0) {
+                            if (formattedToday.localeCompare(slot.date) === -1 || formattedToday.localeCompare(slot.date) === 0) {
                                 notAttendNotCanceledAppInfoList.push(bookInfo);
                             }
                         }
@@ -691,7 +691,6 @@ export const getCancelAppByDoctor = asyncHandler(async (req, res, next) => {
 
     return res.status(200).json({ canceledAppInfo: notAttendNotCanceledAppInfoList });
 });
-
 
 export const getDoneAppByDoctor = asyncHandler(async (req, res, next) => {
     const docId = req.params.docId;
@@ -869,4 +868,63 @@ export const appCancelByDoctor = asyncHandler(async (req, res, next) => {
     }
 
     return next(new Error('Appointment not found'));
+});
+
+export const getNumApp = asyncHandler(async (req, res, next) => {
+    let num = 0;  // Move the declaration outside the if block
+
+    const schedule = await scheduleModel.findOne({ writtenBy: req.params.docId });
+    if (schedule) {
+        for (const s of schedule.scheduleByDay) {
+            for (const t of s.timeSlots) {
+                if (t.is_booked) {
+                    console.log(t);
+                    num++;
+                }
+            }
+        }
+    }
+    return res.status(200).json( num );
+});
+
+export const getNumAppMonth = asyncHandler(async (req, res, next) => {
+    let num = 0;
+
+    const schedule = await scheduleModel.findOne({ writtenBy: req.params.docId });
+    if (schedule) {
+        const currentDate = new Date();
+        const lastMonthDate = new Date();
+        lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+
+        for (const s of schedule.scheduleByDay) {
+            for (const t of s.timeSlots) {
+                const slotDate = new Date(s.date);
+                // Check if the slot is booked and falls within the last month
+                if (t.is_booked && slotDate >= lastMonthDate && slotDate <= currentDate) {
+                    console.log(t);
+                    num++;
+                }
+            }
+        }
+    }
+    return res.status(200).json( num );
+});
+
+export const getNumPatient = asyncHandler(async (req, res, next) => {
+    const app = await appointmentModel.findOne({ bookedFor: req.params.docId });
+    let uniqueUserIds = [];
+    if (app) {
+        for(const a of app.bookInfo){
+            // Assuming 'userId' is the key for the user identifier
+            const userId = a.userId.toString();
+
+            // Check if the userId is not already in the array before adding it
+            if(!uniqueUserIds.includes(userId)){
+                uniqueUserIds.push(userId);
+            } 
+        } 
+    }
+    const num = uniqueUserIds.length;
+
+    return res.status(200).json(num);
 });
