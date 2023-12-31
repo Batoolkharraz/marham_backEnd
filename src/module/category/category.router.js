@@ -14,5 +14,6 @@ router.post('/',fileUpload(fileValidation.image).single('image'),categoryCont.cr
 router.patch('/update/:id',fileUpload(fileValidation.image).single('image'),categoryCont.updateCategory)
 router.get('/',categoryCont.getAllCategory);
 router.get('/:categoryId',categoryCont.getCategory);
+router.get('/getNumDoctor/123',categoryCont.numDocOfCategory);
 router.delete('/:id',categoryCont.deleteCategory);
 export default router;
