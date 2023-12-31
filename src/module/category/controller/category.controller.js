@@ -42,7 +42,7 @@ export const updateCategory=asyncHandler(async (req,res,next)=>{
         category.description=req.body.description;
     }
     await category.save();
-    return res.json({category})
+    return res.status(200).json({category})
 })
 
 
