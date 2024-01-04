@@ -82,7 +82,7 @@ export const numOfUser = async (req, res, next) => {
             }
     }
 
-    return res.status(200).json(num);
+    return res.status(200).json({num});
 };
 
 export const numOfDoc = async (req, res, next) => {
