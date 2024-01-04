@@ -884,7 +884,7 @@ export const getNumApp = asyncHandler(async (req, res, next) => {
             }
         }
     }
-    return res.status(200).json( num );
+    return res.status(200).json(num);
 });
 
 export const getNumAppMonth = asyncHandler(async (req, res, next) => {
@@ -907,24 +907,45 @@ export const getNumAppMonth = asyncHandler(async (req, res, next) => {
             }
         }
     }
-    return res.status(200).json( num );
+    return res.status(200).json(num);
 });
 
 export const getNumPatient = asyncHandler(async (req, res, next) => {
     const app = await appointmentModel.findOne({ bookedFor: req.params.docId });
     let uniqueUserIds = [];
     if (app) {
-        for(const a of app.bookInfo){
+        for (const a of app.bookInfo) {
             // Assuming 'userId' is the key for the user identifier
             const userId = a.userId.toString();
 
             // Check if the userId is not already in the array before adding it
-            if(!uniqueUserIds.includes(userId)){
+            if (!uniqueUserIds.includes(userId)) {
                 uniqueUserIds.push(userId);
-            } 
-        } 
+            }
+        }
     }
     const num = uniqueUserIds.length;
+
+    return res.status(200).json(num);
+});
+
+export const getNumAppAll = asyncHandler(async (req, res, next) => {
+    let num = 0;
+
+    const schedules = await scheduleModel.find();
+    console.log(schedules);
+
+    if (schedules && schedules.length > 0) {
+        for (const schedule of schedules) {
+            for (const s of schedule.scheduleByDay) {
+                for (const t of s.timeSlots) {
+                    if (t.is_booked) {
+                        num++;
+                    }
+                }
+            }
+        }
+    }
 
     return res.status(200).json(num);
 });

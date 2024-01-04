@@ -71,3 +71,28 @@ export const getAllUser = async (req, res, next) => {
     return res.status(200).json({ users })
 
 };
+
+export const numOfUser = async (req, res, next) => {
+    const users = await userModel.find();
+
+    let num = 0;
+    for (const user of users) {
+            if (user.role=='user') {
+                num++;
+            }
+    }
+
+    return res.status(200).json(num);
+};
+
+export const numOfDoc = async (req, res, next) => {
+    const users = await userModel.find();
+
+    let num = 0;
+    for (const user of users) {
+            if (user.role=='doctor') {
+                num++;
+            }
+    }
+    return res.status(200).json(num);
+};
