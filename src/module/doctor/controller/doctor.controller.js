@@ -225,12 +225,11 @@ export const numOfUser = asyncHandler( async (req, res, next) => {
                 num++;
             }
     }
-    return res.status(200).json({num});
+    return res.status(200).json(num);
 });
 
 export const numOfDoc = asyncHandler( async (req, res, next) => {
     const users = await userModel.find();
-
     let num = 0;
     for (const user of users) {
             if (user.role=='doctor') {

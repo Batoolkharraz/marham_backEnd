@@ -21,7 +21,7 @@ router.get('/find/:docId',doctorCont.getDoctorByEmail);
 router.get('/findId/:docId',doctorCont.getDoctorId);
 router.post('/getDocByEmail/:id',doctorCont.getDocByEmail);
 
-router.get('/getNumUser',doctorCont.numOfUser);
-router.get('/getNumDoctor',doctorCont.numOfDoc);
+router.get('/getNumUser/123',doctorCont.numOfUser);
+router.get('/getNumDoctor/123',doctorCont.numOfDoc);
 
 export default router;

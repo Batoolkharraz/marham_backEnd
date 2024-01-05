@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllUser, upinfo,numOfUser,numOfDoc } from './update.js';
+import { getAllUser, upinfo } from './update.js';
 import fileUpload, { fileValidation } from "../../../Services/multer_cloud.js";
 
 const updaterouter=Router();
