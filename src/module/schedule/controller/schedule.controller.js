@@ -933,7 +933,6 @@ export const getNumAppAll = asyncHandler(async (req, res, next) => {
     let num = 0;
 
     const schedules = await scheduleModel.find();
-    console.log(schedules);
 
     if (schedules && schedules.length > 0) {
         for (const schedule of schedules) {

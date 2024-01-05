@@ -27,7 +27,7 @@ router.get('/doctorAppointment/:bookId/:userId',scheduleCont.getDocAppInfo);
 
 router.get('/byDoctor/today/:docId',scheduleCont.getTodayAppByDoctor);
 
-router.get('/getNumAppAll',scheduleCont.getNumAppAll);
+router.get('/getNumAppAll/123',scheduleCont.getNumAppAll);
 router.get('/getNumApp/:docId',scheduleCont.getNumApp);
 router.get('/getNumAppMonth/:docId',scheduleCont.getNumAppMonth);
 router.get('/getNumPatient/:docId',scheduleCont.getNumPatient);
