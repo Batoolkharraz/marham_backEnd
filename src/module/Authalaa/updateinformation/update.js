@@ -74,14 +74,12 @@ export const getAllUser = async (req, res, next) => {
 
 export const numOfUser = async (req, res, next) => {
     const users = await userModel.find();
-
     let num = 0;
     for (const user of users) {
             if (user.role=='user') {
                 num++;
             }
     }
-
     return res.status(200).json({num});
 };
 
